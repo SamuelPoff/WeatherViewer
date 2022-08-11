@@ -1,0 +1,11 @@
+<h1>WeatherViewer Dashboard</h1>
+
+<button type="button" (click)="getCurrentWeather('New York')">Get Current Weather Data</button>
+
+<div *ngFor="let data of weatherData">
+    <h1>Current Weather Data for New York, NY</h1>
+    <h1>Tempureature: {{data.temperature}}</h1>
+    <h1>Feelslike: {{data.feelslike}}</h1>
+    <h1>Humidity: {{data.humidity}}</h1>
+    <h1>Precipitation: {{data.precip}}</h1>
+</div>
