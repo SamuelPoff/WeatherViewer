@@ -1,11 +1,23 @@
 <h1>WeatherViewer Dashboard</h1>
 
-<button type="button" (click)="getCurrentWeather('New York')">Get Current Weather Data</button>
+<button type="button" (click)="getCurrentWeather('New York', 'f')">Get Current Weather Data</button>
+
+<div class="container">
+    <label for="location-input">City Name</label>
+    <input id="location-input" ngx-google-places-autocomplete #location [options]="options" (onAddressChange)="addressChange($event, units.value)" />
+</div>
+
+<label for="temperature-unit">Unit of Temperature</label>
+<select #units name="Temperature Unit" id="temperature-unit">
+    <option selected value="m">Metric</option>
+    <option value="f">Farenhiet</option>
+    <option value="s">Scientific</option> 
+</select>
 
 <div *ngFor="let data of weatherData">
-    <h1>Current Weather Data for New York, NY</h1>
-    <h1>Tempureature: {{data.temperature}}</h1>
-    <h1>Feelslike: {{data.feelslike}}</h1>
+    <h1>Current Weather Data {{location.value}}</h1>
+    <h1>Temperature: {{data.temperature}}</h1>
+    <h1>Feels Like: {{data.feelslike}}</h1>
     <h1>Humidity: {{data.humidity}}</h1>
     <h1>Precipitation: {{data.precip}}</h1>
 </div>

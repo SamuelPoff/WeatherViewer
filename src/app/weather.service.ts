@@ -5,6 +5,8 @@ import {HttpClient} from '@angular/common/http';
 
 import {CurrentWeatherResponse, CurrentWeatherData} from "./weatherData";
 
+import {environment} from "../environments/environment";
+
 /* Get weather data from weatherstack API */
 
 @Injectable({
@@ -14,13 +16,20 @@ export class WeatherService {
 
   baseUrl: string = "http://api.weatherstack.com/";
   currentWeatherUrl: string = "/current";
-  accessKey: string = "?access_key=a886365f5326b34936176cec6b2a74c0";
+  accessKey: string = "?access_key=" + environment.weatherstackApiKey;
 
   constructor(private http: HttpClient) { }
 
-  getCurrentWeather(location: string): Observable<CurrentWeatherResponse>{
+  getCurrentWeather(location: string, unit? : string): Observable<CurrentWeatherResponse>{
 
-    return this.http.get<CurrentWeatherResponse>(this.baseUrl + this.currentWeatherUrl + this.accessKey + "&query=" + location);
+    let url = this.baseUrl + this.currentWeatherUrl + this.accessKey + "&query=" + location
+    if(unit){
+      url += `&units=${unit}`;
+    }
+
+    console.log(unit);
+    console.log(url);
+    return this.http.get<CurrentWeatherResponse>(url);
 
   }
 
