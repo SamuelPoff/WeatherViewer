@@ -6,7 +6,7 @@ export const environment = {
   production: false,
 
   placesApiKey: "AIzaSyDlmQzxwVe4mT3a-KpyUxCSjipWkJd3OS4",
-  weatherstackApiKey: "a886365f5326b34936176cec6b2a74c0"
+  weatherapiKey: "70fb6d4c8d1d4e15847235155221208"
 
 };
 

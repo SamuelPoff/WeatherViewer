@@ -16,8 +16,9 @@ import { Address } from 'ngx-google-places-autocomplete/objects/address';
 })
 export class DashboardComponent implements OnInit {
 
-  weatherData: CurrentWeatherData[] = [];
+  weatherData: any[] = [];
   options: Options = new Options({types: ['locality']});
+  unit: string = "c";
 
   constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { }
 
@@ -25,8 +26,9 @@ export class DashboardComponent implements OnInit {
 
   getCurrentWeather(location: string, units: string){
 
-    this.weatherService.getCurrentWeather(location, units).subscribe((res: CurrentWeatherResponse)=>{
+    this.weatherService.getCurrentWeather(location, units).subscribe((res: any)=>{
 
+      console.log(res);
       this.weatherData.push(res.current);
 
     });
@@ -35,7 +37,15 @@ export class DashboardComponent implements OnInit {
 
   addressChange(address: Address, units: string){
     
-    this.getCurrentWeather(address.formatted_address, units);
+    console.log("Units: " + units);
+    this.getCurrentWeather(address.formatted_address, this.unit);
+
+  }
+
+  onUnitChange(value: string){
+
+    this.unit = value;
+    console.log(this.unit);
 
   }
 

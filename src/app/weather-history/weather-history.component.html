@@ -1,0 +1,9 @@
+<br />
+<br />
+<h2>Historical Weather</h2>
+
+<button type="button" (click)="getHistoricalWeather('New York', '2022-08-10')" >Give Historical Weather Data</button>
+
+<div *ngFor="let data of weatherData">
+    <p>Max Temp = {{data.day.maxtemp_c}}</p>
+</div>

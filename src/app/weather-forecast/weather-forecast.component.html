@@ -1,0 +1,10 @@
+<h1>Weather Forecast</h1>
+<button type="button" (click)="getForecast()">Get Forecast</button>
+<div *ngFor="let forecast of forecasts">
+    <p>Date: {{forecast.date}}</p>
+    <p>High: {{forecast.day.maxtemp_c}}</p>
+    <p>Low: {{forecast.date.mintemp_c}}</p>
+    <p>Average Temperature: {{forecast.day.avgtemp_c}}</p>
+    <p>UV Index: {{forecast.day.uv}}</p>
+    <p>{{forecast.day.condition.text}}</p>
+</div>
