@@ -8,6 +8,7 @@ import { GooglePlaceModule } from 'ngx-google-places-autocomplete';
 import { WeatherHistoryComponent } from './weather-history/weather-history.component';
 import { CurrentWeatherViewComponent } from './current-weather-view/current-weather-view.component';
 import { WeatherForecastComponent } from './weather-forecast/weather-forecast.component';
+import { WeatherDataDetailsComponent } from './weather-data-details/weather-data-details.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { WeatherForecastComponent } from './weather-forecast/weather-forecast.co
     DashboardComponent,
     WeatherHistoryComponent,
     CurrentWeatherViewComponent,
-    WeatherForecastComponent
+    WeatherForecastComponent,
+    WeatherDataDetailsComponent
   ],
   imports: [
     BrowserModule,

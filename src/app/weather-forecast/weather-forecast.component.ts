@@ -20,7 +20,6 @@ export class WeatherForecastComponent implements OnInit {
 
     this.weatherService.getForecast("Indianapolis", 7).subscribe((res)=>{
 
-      console.log(res);
       this.forecasts = res.forecast.forecastday;
 
     });

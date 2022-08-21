@@ -1,9 +1,15 @@
-<br />
-<br />
+
 <h2>Historical Weather</h2>
 
-<button type="button" (click)="getHistoricalWeather('New York', '2022-08-10')" >Give Historical Weather Data</button>
+<div class="container">
+    <label for="location-input">City Name</label>
+    <input id="location-input" ngx-google-places-autocomplete #location [options]="options" />
+</div>
 
-<div *ngFor="let data of weatherData">
-    <p>Max Temp = {{data.day.maxtemp_c}}</p>
+<input type="text" #dateInput />
+
+<button type="button" (click)="getHistoricalWeather(location.value, dateInput.value)" >Get Historical Weather Data</button>
+
+<div *ngIf="historicalWeatherForecast">
+    <app-weather-data-details [forecastData]="historicalWeatherForecast"></app-weather-data-details>
 </div>

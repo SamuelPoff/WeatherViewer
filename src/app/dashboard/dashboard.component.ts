@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 
-import {CurrentWeatherResponse, CurrentWeatherData} from "../weatherData";
 import {WeatherService} from "../weather.service";
 import { PlacesAutocompleteService } from '../places-autocomplete.service';
 import { enableDebugTools } from '@angular/platform-browser';
+
+import {CurrentWeatherData} from "../interfaces/CurrentWeatherData";
 
 import { Options } from "ngx-google-places-autocomplete/objects/options/options";
 import { Address } from 'ngx-google-places-autocomplete/objects/address';
@@ -19,6 +20,8 @@ export class DashboardComponent implements OnInit {
   weatherData: any[] = [];
   options: Options = new Options({types: ['locality']});
   unit: string = "c";
+
+  currentWeatherData?: CurrentWeatherData;
 
   constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { }
 
@@ -48,7 +51,6 @@ export class DashboardComponent implements OnInit {
     console.log(this.unit);
 
   }
-
 
 }
 
