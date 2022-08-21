@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
+import {RouterModule, Routes} from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -22,7 +23,13 @@ import { WeatherDataDetailsComponent } from './weather-data-details/weather-data
   imports: [
     BrowserModule,
     HttpClientModule,
-    GooglePlaceModule
+    GooglePlaceModule,
+    RouterModule.forRoot([
+      {path:'dashboard', component: DashboardComponent},
+      {path:'forecast', component: WeatherForecastComponent},
+      {path:'history', component: WeatherHistoryComponent},
+      {path:'', redirectTo:'dashboard', pathMatch:'full'}
+    ])
   ],
   providers: [],
   bootstrap: [AppComponent]
