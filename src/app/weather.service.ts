@@ -25,7 +25,7 @@ export class WeatherService {
 
   constructor(private http: HttpClient) { }
 
-  getCurrentWeather(location: string, unit? : string): Observable<any>{
+  getCurrentWeather(location: string): Observable<any>{
 
     let url = this.baseUrl + this.currentWeatherUrl + this.accessKey + "&q=" + location
 

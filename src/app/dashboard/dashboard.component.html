@@ -11,6 +11,22 @@
     <option value="f">Fahrenheit</option>
 </select>
 
-<div *ngFor="let data of weatherData">
-    <app-current-weather-view [weatherData]="data" [unit]="unit"></app-current-weather-view>
+<!-- Reminder that WeatherApi defines the data type 'Forecast' to represent both weather history and literal weather forecasts (kinda confusing on the surface) -->
+<div *ngIf="weatherHistoryData.length > 0">
+    <h1>Weather History for {{thelocation}}</h1>
+    <div *ngFor="let historyData of weatherHistoryData">
+        <app-weather-data-details [forecastData]="historyData"></app-weather-data-details>
+    </div>
+</div>
+
+<div *ngIf="currentWeatherData">
+    <h1>Current Weather for {{thelocation}}</h1>
+    <app-current-weather-view [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
+</div>
+
+<div *ngIf="weatherForecastData.length > 0">
+    <h1>Weather Forecast for {{thelocation}}</h1>
+    <div *ngFor="let forecastData of weatherForecastData">
+        <app-weather-data-details [forecastData]="forecastData" ></app-weather-data-details>
+    </div>
 </div>

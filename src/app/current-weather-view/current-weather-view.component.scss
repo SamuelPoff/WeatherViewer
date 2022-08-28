@@ -1,0 +1,45 @@
+.current-weather-details{
+
+    width: fit-content;
+
+    padding: 0.5em;
+
+    border: 2px solid black;
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+}
+
+.current-weather-header{
+
+    line-height: 10%;
+
+    padding: 0.25em;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border-bottom: 1px solid rgba(1,1,1,0.4);
+
+}
+
+.current-weather-additional-info{
+
+    padding: 0.25em;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.italic{
+    font-style: italic;
+}
