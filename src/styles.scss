@@ -1,1 +1,122 @@
 /* You can add global styles to this file, and also import other style files */
+
+body{
+    margin: 0;
+    padding: 0;
+
+    max-width: 100%;
+}
+
+.canvas{
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    margin: 0;
+    padding: 0;
+
+    z-index: 1;
+
+}
+
+.container{
+
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    z-index: 10;
+
+    color: white;
+}
+
+#location-input{
+
+    padding: 1.0em;
+
+    border-radius: 5px;
+    border: 4px solid white;
+
+}
+
+.weather{
+
+    display: flex;
+
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: nowrap;
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+
+    z-index: 10;
+
+    width: 100%;
+    position: relative;
+
+}
+
+.weather-details{
+
+    min-width: 200px;
+
+    margin: 0;
+    padding: 0.5em;
+
+    border: 2px solid rgba(255,255,255,0.6);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    background-color: rgba(255,255,255,0.5);
+
+    transition: background-color 0.5s
+
+}
+
+.weather-details:hover{
+
+    background-color: rgba(255,255,255,1.0);
+
+}
+
+.weather-header{
+
+    line-height: 10%;
+
+    padding: 0.25em;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border-bottom: 1px solid rgba(1,1,1,0.4);
+
+}
+
+.weather-additional-info{
+
+    padding: 0.25em;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.italics{
+    font-style: italic;
+}

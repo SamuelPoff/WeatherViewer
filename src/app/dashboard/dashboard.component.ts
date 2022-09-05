@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, AfterViewInit, ViewChild, Input } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 
 import {WeatherService} from "../weather.service";
@@ -10,12 +10,68 @@ import {CurrentWeatherData} from "../interfaces/CurrentWeatherData";
 import { Options } from "ngx-google-places-autocomplete/objects/options/options";
 import { Address } from 'ngx-google-places-autocomplete/objects/address';
 
+import * as Three from "three";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import { timestamp } from 'rxjs';
+import { MathUtils } from 'three';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
+
+  @ViewChild('canvas')
+  private canvasRef!: ElementRef;
+
+  /* Three.js setup variables */
+  @Input() public rotationSpeedX: number = 0.05;
+  @Input() public rotationSpeedY: number = 0.02;
+
+  @Input() public size: number = 100;
+  @Input() public texture: string = "";
+
+  @Input() public cameraZ = 30;
+  @Input() public FOV: number = 75;
+  @Input() public nearClippingPlane: number = 1;
+  @Input() public farClippingPlane: number = 1000;
+
+  public camera!: Three.PerspectiveCamera;
+  private get canvas(): HTMLCanvasElement{
+    return this.canvasRef.nativeElement;
+  }
+
+  private textureLoader = new Three.TextureLoader();
+  private boxGeometry = new Three.BoxGeometry(1, 1, 1);
+  private basicWireframeMat = new Three.MeshBasicMaterial({wireframe: true});
+  private box: Three.Mesh = new Three.Mesh(this.boxGeometry, this.basicWireframeMat);
+
+  private coneGeometry = new Three.ConeGeometry(0.1, 1, 5);
+  private cone = new Three.Mesh(this.coneGeometry, this.basicWireframeMat);
+
+  private cloudGeometry = new Three.TetrahedronGeometry(3, 2);
+  private cloud = new Three.Mesh(this.cloudGeometry, this.basicWireframeMat);
+  private cloudBaseScale = 2;
+  private cloudBaseYScale = 0.8;
+
+  private renderer!: Three.WebGLRenderer;
+  private scene!: Three.Scene;
+
+  private raindropGeometry = new Three.ConeGeometry(0.05, 1, 5);
+  private raindrops: Three.Mesh[] = [];
+
+  private sunGeometry = new Three.IcosahedronGeometry(40, 2);
+  private sun = new Three.Mesh(this.sunGeometry, this.basicWireframeMat);
+
+  private sunRayGeometry = new Three.ConeGeometry(1, 40, 4);
+  private sunRays: Three.Mesh[] = [];
+  private sunRayAngles: number[] = [];
+
+  private totalElapsedTime: number = 0;
+  private deltaTime: number = 0;
+
+  private lastTime?: DOMHighResTimeStamp;
 
   currentWeatherData: any;
   weatherHistoryData: any[] = [];
@@ -37,6 +93,167 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  private createScene() {
+
+    //Setup Scene
+    this.scene = new Three.Scene();
+    this.scene.background = new Three.Color(0x000000);
+
+    
+    this.cone.position.y = 10;
+    this.cone.rotation.x = 3.14;
+    this.cone.rotation.z = -0.3;
+    this.cone.rotation.y = 0.5;
+    //this.cone.rotation.x = 0.0;
+    this.scene.add(this.cone);
+
+    this.cloud.position.y = 10;
+    
+    this.scene.add(this.cloud);
+
+    //Create sun and add sun rays
+    this.sun.position.x = -50;
+    this.scene.add(this.sun);
+    let numberOfRays = 10;
+    let sunRadius = 65;
+    for(let i = 0; i <= numberOfRays; i++){
+
+      let sunRay = new Three.Mesh(this.sunRayGeometry, this.basicWireframeMat);
+      let angleIncrement = (Math.PI*2)/numberOfRays;
+      let angle = angleIncrement * i
+
+      this.positionSunRay(sunRay, angle, sunRadius);
+
+      this.sunRays.push(sunRay);
+      this.sunRayAngles.push(angle);
+      this.scene.add(sunRay);
+
+    }
+    
+
+    let gridHelper = new Three.GridHelper(400, 100);
+    this.scene.add(gridHelper);
+
+    
+
+    let aspectRatio = this.canvas.clientWidth / this.canvas.clientHeight;
+    this.camera = new Three.PerspectiveCamera(this.FOV, aspectRatio, this.nearClippingPlane, this.farClippingPlane);
+    this.camera.position.z = this.cameraZ;
+
+    this.camera.rotation.x = -1.55;
+    this.camera.rotation.y = 1.55;
+    this.camera.rotation.z = 1.55;
+
+    this.camera.position.x  = 37;
+    this.camera.position.y = 5;
+    this.camera.position.z = 0;
+
+  }
+
+  private positionSunRay(sunRay: Three.Mesh, angle: number, sunRadius: number){
+
+      let z = Math.cos(angle) * sunRadius;
+      let y = Math.sin(angle) * sunRadius;
+
+      sunRay.position.x = this.sun.position.x;
+      sunRay.position.z = z;
+      sunRay.position.y = y;
+
+      sunRay.rotation.x = -angle + 1.57;
+
+  }
+
+  private animateCone(){
+
+    this.cone.position.y -= 0.1;
+    this.cone.position.x += 0.01;
+    this.cone.position.z += 0.01
+
+  }
+
+  private animateCloud(){
+
+    let scaleOffset = (Math.sin(this.totalElapsedTime * 0.001) * 0.1);
+    this.cloud.scale.x = this.cloudBaseScale + scaleOffset;
+    this.cloud.scale. y = this.cloudBaseYScale + scaleOffset;
+    this.cloud.scale.z = this.cloudBaseScale + scaleOffset + 1.5;
+
+
+  }
+
+  private animateSun(){
+
+    this.sun.rotation.y += 0.0005;
+
+    for(let i = 0; i < this.sunRays.length; i++){
+
+      let ray = this.sunRays[i];
+      let angle = this.sunRayAngles[i];
+
+      let newAngle = angle + 0.001
+      this.sunRayAngles[i] = newAngle;
+
+      this.positionSunRay(ray, newAngle, 65);
+
+    } 
+
+  }
+
+  private startRenderingLoop(){
+
+    this.renderer = new Three.WebGLRenderer({canvas: this.canvas});
+    this.renderer.setPixelRatio(devicePixelRatio);
+    this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
+
+    //Instaniate orbit controls
+    const controls = new OrbitControls(this.camera, this.renderer.domElement);
+
+    this.camera.rotation.x = -1.55;
+    this.camera.rotation.y = 1.55;
+    this.camera.rotation.z = 1.55;
+
+    let component: DashboardComponent = this;
+    (function render(currentTime?: DOMHighResTimeStamp){
+      
+      //Calculate time information
+      if(currentTime){
+        if(!component.lastTime){
+          component.lastTime = currentTime;
+        }
+
+        let dt = currentTime - component.lastTime;
+        component.deltaTime = dt
+        component.totalElapsedTime += dt;
+
+        component.lastTime = currentTime;
+
+      }
+
+      console.log(Math.floor(component.totalElapsedTime / 1000));
+
+      if(Math.floor(component.totalElapsedTime / 1000) % 2 == 0){
+        //component.spawnRaindrop();
+        console.log("Raindrop spawned");
+      }
+
+      component.animateRaindrops();
+      component.animateCone();
+      component.animateCloud();
+      component.animateSun();
+      component.renderer.render(component.scene, component.camera);
+
+      requestAnimationFrame(render);
+
+      
+      
+    }());
+
+  }
+
+  ngAfterViewInit(): void{
+    this.createScene();
+    this.startRenderingLoop();
+  }
 
   /* Gather all weather information for current, past and future weather to display */
   getAllWeather(location: string){
@@ -108,6 +325,35 @@ export class DashboardComponent implements OnInit {
     else{
       alert("Geolocator is not supported by browser. Cannot automatically get loction information");
     }
+
+  }
+
+  spawnRaindrop(){
+
+    let raindrop = new Three.Mesh(this.raindropGeometry, this.basicWireframeMat);
+    raindrop.position.y = 10;
+    raindrop.position.x = -5 + (Math.random() * 10);
+    raindrop.position.z = -5 + (Math.random() * 10);
+
+    raindrop.rotation.x = 3.14;
+    raindrop.rotation.y = 0.5;
+    raindrop.rotation.z = -0.3;
+
+    this.raindrops.push( raindrop );
+
+    this.scene.add(raindrop);
+
+  }
+
+  animateRaindrops(){
+
+    this.raindrops.forEach( (raindrop)=> {
+
+      raindrop.position.y -= 0.1;
+      raindrop.position.x + 0.01;
+      raindrop.position.z += 0.01
+
+    } );
 
   }
 

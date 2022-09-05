@@ -19,8 +19,10 @@
     "@angular/platform-browser-dynamic": "^14.1.0",
     "@angular/router": "^14.1.0",
     "@types/googlemaps": "^3.43.3",
+    "@types/three": "^0.143.2",
     "ngx-google-places-autocomplete": "^2.0.5",
     "rxjs": "~7.5.0",
+    "three": "^0.143.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },

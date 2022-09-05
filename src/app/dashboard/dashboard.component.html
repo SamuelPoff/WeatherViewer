@@ -1,7 +1,8 @@
+<canvas class="canvas" #canvas id="canvas" style="height: 100%; width: 100%;" ></canvas>
+
 <h1>WeatherViewer Dashboard</h1>
 
 <div class="container">
-    <label for="location-input">City Name</label>
     <input id="location-input" ngx-google-places-autocomplete #location [options]="options" (onAddressChange)="addressChange($event, units.value)" />
 </div>
 
@@ -12,21 +13,20 @@
 </select>
 
 <!-- Reminder that WeatherApi defines the data type 'Forecast' to represent both weather history and literal weather forecasts (kinda confusing on the surface) -->
-<div *ngIf="weatherHistoryData.length > 0">
-    <h1>Weather History for {{thelocation}}</h1>
-    <div *ngFor="let historyData of weatherHistoryData">
-        <app-weather-data-details [forecastData]="historyData"></app-weather-data-details>
-    </div>
-</div>
+<div class="weather">
+    <div *ngIf="camera" style="color: white;">
+        <p>rotX: {{camera.rotation.x}}</p>
+        <p>rotY: {{camera.rotation.y}}</p>
+        <p>rotZ: {{camera.rotation.z}}</p>
 
-<div *ngIf="currentWeatherData">
-    <h1>Current Weather for {{thelocation}}</h1>
-    <app-current-weather-view [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
-</div>
-
-<div *ngIf="weatherForecastData.length > 0">
-    <h1>Weather Forecast for {{thelocation}}</h1>
-    <div *ngFor="let forecastData of weatherForecastData">
-        <app-weather-data-details [forecastData]="forecastData" ></app-weather-data-details>
+        <p>posX: {{camera.position.x}}</p>
+        <p>posY: {{camera.position.y}}</p>
+        <p>posZ: {{camera.position.z}}</p>
     </div>
+
+    <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData"></app-weather-data-details>
+
+    <app-current-weather-view *ngIf="currentWeatherData" [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
+
+    <app-weather-data-details *ngFor="let forecastData of weatherForecastData" [forecastData]="forecastData" ></app-weather-data-details>
 </div>

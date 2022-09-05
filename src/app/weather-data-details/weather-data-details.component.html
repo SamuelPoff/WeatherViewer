@@ -1,8 +1,14 @@
-
-<h1>Weather Details for {{forecastData.date}}</h1>
-<p>Max Temperature {{forecastData.day.maxtemp_c}}</p>
-<p>Min Temperature {{forecastData.day.mintemp_c}}</p>
-<p>Average Temperature {{forecastData.day.avgtemp_c}}</p>
-<p>Total Precipitation {{forecastData.day.totalprecip_mm}}</p>
-<p>Average Humidity {{forecastData.day.avghumidity}}</p>
-<p>UV Index {{forecastData.day.uv}}</p>
+<div class="weather-details">
+    <div class="weather-header">
+        <p>Max Temperature {{forecastData.day.maxtemp_c}}</p>
+        <p>Min Temperature {{forecastData.day.mintemp_c}}</p>
+        <p class="italics">{{forecastData.day.condition.text}}</p>
+    </div>
+    
+    <div class="weather-additional-info">
+        <p>Average Temperature {{forecastData.day.avgtemp_c}}</p>
+        <p>Total Precipitation {{forecastData.day.totalprecip_mm}}</p>
+        <p>Average Humidity {{forecastData.day.avghumidity}}</p>
+        <p>UV Index {{forecastData.day.uv}}</p>
+    </div>
+</div>
