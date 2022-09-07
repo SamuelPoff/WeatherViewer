@@ -15,6 +15,8 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import { timestamp } from 'rxjs';
 import { MathUtils } from 'three';
 
+import Sun from "../objects/Sun";
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -61,12 +63,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private raindropGeometry = new Three.ConeGeometry(0.05, 1, 5);
   private raindrops: Three.Mesh[] = [];
 
-  private sunGeometry = new Three.IcosahedronGeometry(40, 2);
-  private sun = new Three.Mesh(this.sunGeometry, this.basicWireframeMat);
-
-  private sunRayGeometry = new Three.ConeGeometry(1, 40, 4);
-  private sunRays: Three.Mesh[] = [];
-  private sunRayAngles: number[] = [];
+  private sun: Sun = new Sun(40, 50, 5, this.basicWireframeMat);
 
   private totalElapsedTime: number = 0;
   private deltaTime: number = 0;
@@ -112,24 +109,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.scene.add(this.cloud);
 
     //Create sun and add sun rays
-    this.sun.position.x = -50;
-    this.scene.add(this.sun);
-    let numberOfRays = 10;
-    let sunRadius = 65;
-    for(let i = 0; i <= numberOfRays; i++){
-
-      let sunRay = new Three.Mesh(this.sunRayGeometry, this.basicWireframeMat);
-      let angleIncrement = (Math.PI*2)/numberOfRays;
-      let angle = angleIncrement * i
-
-      this.positionSunRay(sunRay, angle, sunRadius);
-
-      this.sunRays.push(sunRay);
-      this.sunRayAngles.push(angle);
-      this.scene.add(sunRay);
-
-    }
-    
+    this.scene.add(this.sun.mesh);
+    this.sun.sunRays.forEach((ray)=>{
+      this.scene.add(ray.mesh);
+    });
 
     let gridHelper = new Three.GridHelper(400, 100);
     this.scene.add(gridHelper);
@@ -150,19 +133,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
-  private positionSunRay(sunRay: Three.Mesh, angle: number, sunRadius: number){
-
-      let z = Math.cos(angle) * sunRadius;
-      let y = Math.sin(angle) * sunRadius;
-
-      sunRay.position.x = this.sun.position.x;
-      sunRay.position.z = z;
-      sunRay.position.y = y;
-
-      sunRay.rotation.x = -angle + 1.57;
-
-  }
-
   private animateCone(){
 
     this.cone.position.y -= 0.1;
@@ -178,24 +148,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.cloud.scale. y = this.cloudBaseYScale + scaleOffset;
     this.cloud.scale.z = this.cloudBaseScale + scaleOffset + 1.5;
 
-
-  }
-
-  private animateSun(){
-
-    this.sun.rotation.y += 0.0005;
-
-    for(let i = 0; i < this.sunRays.length; i++){
-
-      let ray = this.sunRays[i];
-      let angle = this.sunRayAngles[i];
-
-      let newAngle = angle + 0.001
-      this.sunRayAngles[i] = newAngle;
-
-      this.positionSunRay(ray, newAngle, 65);
-
-    } 
 
   }
 
@@ -239,7 +191,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       component.animateRaindrops();
       component.animateCone();
       component.animateCloud();
-      component.animateSun();
+
+      component.sun.Animate(component.totalElapsedTime, component.deltaTime);
+
       component.renderer.render(component.scene, component.camera);
 
       requestAnimationFrame(render);
