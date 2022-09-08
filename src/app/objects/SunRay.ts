@@ -13,7 +13,7 @@ class SunRay {
 
     radiusOffset: number = 30;
 
-    constructor(radius: number, height: number, material: Three.MeshBasicMaterial, angle: number, sun: Sun){
+    constructor(radius: number, height: number, material: Three.MeshBasicMaterial, angle: number, sun: Sun, scene: Three.Scene){
 
         this.sun = sun;
 
@@ -24,6 +24,8 @@ class SunRay {
         this.height = height;
 
         this.SetAngle(angle);
+
+        scene.add(this.mesh);
 
     }
 

@@ -12,7 +12,7 @@ class Sun{
     private sunRotationSpeed = 0.005;
     private sunRayRotationSpeed = 0.001;
 
-    constructor(radius: number, xOffset:number, numSunRays: number, mesh: Three.MeshBasicMaterial){
+    constructor(radius: number, xOffset:number, numSunRays: number, mesh: Three.MeshBasicMaterial, scene: Three.Scene){
 
         let geometry = new Three.IcosahedronGeometry(radius, 2);
         this.mesh = new Three.Mesh(geometry, mesh);
@@ -25,10 +25,18 @@ class Sun{
         for(let i = 0; i < numSunRays; i++){
 
             let angle = angleIncrement * i;
-            let sunRay = new SunRay(1, 30, mesh, angle, this);
+            let sunRay = new SunRay(1, 30, mesh, angle, this, scene);
 
             this.sunRays.push(sunRay);
         }
+
+        //Construct wireframe
+        let wireframeGeo = new Three.EdgesGeometry(this.mesh.geometry);
+        let wireframeMat = new Three.LineBasicMaterial( {color: 0xffffff} );
+        let wireframe = new Three.LineSegments(wireframeGeo, wireframeMat);
+        this.mesh.add(wireframe);
+
+        scene.add(this.mesh);
 
     }
 
@@ -40,7 +48,10 @@ class Sun{
 
             let sunRay = this.sunRays[i];
 
-            let scaleOffset = (Math.sin(totalElapsedTime * 0.001) * 0.15)
+            let scaleOffset = (Math.sin(totalElapsedTime * 0.001) * 0.25)
+            if(i%2 == 0){
+                scaleOffset *= -1;
+            }
             sunRay.mesh.scale.y = 1 + scaleOffset;
 
             sunRay.SetAngle(sunRay.angle + this.sunRayRotationSpeed);

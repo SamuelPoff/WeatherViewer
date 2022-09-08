@@ -16,6 +16,7 @@ import { timestamp } from 'rxjs';
 import { MathUtils } from 'three';
 
 import Sun from "../objects/Sun";
+import Cloud from '../objects/Cloud';
 
 @Component({
   selector: 'app-dashboard',
@@ -46,24 +47,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   private textureLoader = new Three.TextureLoader();
   private boxGeometry = new Three.BoxGeometry(1, 1, 1);
-  private basicWireframeMat = new Three.MeshBasicMaterial({wireframe: true});
-  private box: Three.Mesh = new Three.Mesh(this.boxGeometry, this.basicWireframeMat);
-
-  private coneGeometry = new Three.ConeGeometry(0.1, 1, 5);
-  private cone = new Three.Mesh(this.coneGeometry, this.basicWireframeMat);
-
-  private cloudGeometry = new Three.TetrahedronGeometry(3, 2);
-  private cloud = new Three.Mesh(this.cloudGeometry, this.basicWireframeMat);
-  private cloudBaseScale = 2;
-  private cloudBaseYScale = 0.8;
+  private basicWireframeMat = new Three.MeshPhongMaterial({side: Three.FrontSide, color: 0x000000, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
+  
+  private ambientLight = new Three.AmbientLight(0xFFFFFF);
 
   private renderer!: Three.WebGLRenderer;
   private scene!: Three.Scene;
 
-  private raindropGeometry = new Three.ConeGeometry(0.05, 1, 5);
-  private raindrops: Three.Mesh[] = [];
-
-  private sun: Sun = new Sun(40, 50, 5, this.basicWireframeMat);
+  private sun?: Sun;
+  private cloud?: Cloud;
 
   private totalElapsedTime: number = 0;
   private deltaTime: number = 0;
@@ -96,29 +88,18 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.scene = new Three.Scene();
     this.scene.background = new Three.Color(0x000000);
 
-    
-    this.cone.position.y = 10;
-    this.cone.rotation.x = 3.14;
-    this.cone.rotation.z = -0.3;
-    this.cone.rotation.y = 0.5;
-    //this.cone.rotation.x = 0.0;
-    this.scene.add(this.cone);
-
-    this.cloud.position.y = 10;
-    
-    this.scene.add(this.cloud);
-
-    //Create sun and add sun rays
-    this.scene.add(this.sun.mesh);
-    this.sun.sunRays.forEach((ray)=>{
-      this.scene.add(ray.mesh);
-    });
+    //Create objects/actors, but whatever I called them objects which in retrospect was VERY vague but this is a small project so should be ok.
+    this.sun = new Sun(40, 50, 12, this.basicWireframeMat, this.scene);
+    this.cloud = new Cloud(5, this.basicWireframeMat, this.scene);
 
     let gridHelper = new Three.GridHelper(400, 100);
     this.scene.add(gridHelper);
 
+    //Initialize Lighting
+    this.scene.add(this.ambientLight);
     
 
+    //Initialize camera
     let aspectRatio = this.canvas.clientWidth / this.canvas.clientHeight;
     this.camera = new Three.PerspectiveCamera(this.FOV, aspectRatio, this.nearClippingPlane, this.farClippingPlane);
     this.camera.position.z = this.cameraZ;
@@ -127,27 +108,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.camera.rotation.y = 1.55;
     this.camera.rotation.z = 1.55;
 
-    this.camera.position.x  = 37;
-    this.camera.position.y = 5;
+    this.camera.position.x  = 50;
+    this.camera.position.y = 10;
     this.camera.position.z = 0;
-
-  }
-
-  private animateCone(){
-
-    this.cone.position.y -= 0.1;
-    this.cone.position.x += 0.01;
-    this.cone.position.z += 0.01
-
-  }
-
-  private animateCloud(){
-
-    let scaleOffset = (Math.sin(this.totalElapsedTime * 0.001) * 0.1);
-    this.cloud.scale.x = this.cloudBaseScale + scaleOffset;
-    this.cloud.scale. y = this.cloudBaseYScale + scaleOffset;
-    this.cloud.scale.z = this.cloudBaseScale + scaleOffset + 1.5;
-
 
   }
 
@@ -188,11 +151,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         console.log("Raindrop spawned");
       }
 
-      component.animateRaindrops();
-      component.animateCone();
-      component.animateCloud();
-
-      component.sun.Animate(component.totalElapsedTime, component.deltaTime);
+      if(component.sun){
+        component.sun.Animate(component.totalElapsedTime, component.deltaTime);
+      }
 
       component.renderer.render(component.scene, component.camera);
 
@@ -211,8 +172,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   /* Gather all weather information for current, past and future weather to display */
   getAllWeather(location: string){
-
-    
 
     this.getCurrentWeather(location);
     this.getWeatherHistory(location);
@@ -279,35 +238,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     else{
       alert("Geolocator is not supported by browser. Cannot automatically get loction information");
     }
-
-  }
-
-  spawnRaindrop(){
-
-    let raindrop = new Three.Mesh(this.raindropGeometry, this.basicWireframeMat);
-    raindrop.position.y = 10;
-    raindrop.position.x = -5 + (Math.random() * 10);
-    raindrop.position.z = -5 + (Math.random() * 10);
-
-    raindrop.rotation.x = 3.14;
-    raindrop.rotation.y = 0.5;
-    raindrop.rotation.z = -0.3;
-
-    this.raindrops.push( raindrop );
-
-    this.scene.add(raindrop);
-
-  }
-
-  animateRaindrops(){
-
-    this.raindrops.forEach( (raindrop)=> {
-
-      raindrop.position.y -= 0.1;
-      raindrop.position.x + 0.01;
-      raindrop.position.z += 0.01
-
-    } );
 
   }
 
