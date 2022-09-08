@@ -65,29 +65,28 @@ body{
 
 }
 
+$bg-color: black;
+$wireframe-color: #ffffff;
+
 .weather-details{
 
+    color: $wireframe-color;
     min-width: 200px;
 
     margin: 0;
     padding: 0.5em;
 
-    border: 2px solid rgba(255,255,255,0.6);
+    border: 2px solid $wireframe-color;
+    border-radius: 10px;
 
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
 
-    background-color: rgba(255,255,255,0.5);
+    background-color: $bg-color;
 
     transition: background-color 0.5s
-
-}
-
-.weather-details:hover{
-
-    background-color: rgba(255,255,255,1.0);
 
 }
 

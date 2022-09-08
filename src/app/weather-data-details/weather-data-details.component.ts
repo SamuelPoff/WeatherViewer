@@ -9,7 +9,7 @@ export class WeatherDataDetailsComponent implements OnInit {
 
   //An individual "forecastday" object from weatherAPI
   @Input() forecastData: any;
-  @Input() units: string = "c";
+  @Input() unit: string = "c";
 
   constructor() { }
 

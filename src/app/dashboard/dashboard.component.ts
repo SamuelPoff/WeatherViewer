@@ -178,6 +178,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.getWeatherForecast(location);
 
   }
+
+  OnTemperatureUnitChange(unit: any){
+
+    this.unit = unit;
+
+  }
   
 
   /* Get the current weather for the given location (NOTE: current weather data is stored in different format) */

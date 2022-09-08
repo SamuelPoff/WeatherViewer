@@ -4,6 +4,10 @@
 
 <div class="container">
     <input id="location-input" ngx-google-places-autocomplete #location [options]="options" (onAddressChange)="addressChange($event, units.value)" />
+    <div id="radio-container">
+        <input type="radio" checked name="units" value="c" (change)="OnTemperatureUnitChange('c')"/>C
+        <input type="radio" name="units" value="f" (change)="OnTemperatureUnitChange('f')"/>F
+    </div>
 </div>
 
 <label for="temperature-unit">Unit of Temperature</label>
