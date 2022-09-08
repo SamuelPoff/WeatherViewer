@@ -1,6 +1,7 @@
 import * as Three from "three";
 
 import Sun from "./Sun";
+import Wireframe from "./Wireframe";
 
 class SunRay {
 
@@ -11,7 +12,9 @@ class SunRay {
     height: number = 0;
     angle: number = 0;
 
-    radiusOffset: number = 30;
+    radiusOffset: number = 50;
+
+    wireframe: Wireframe;
 
     constructor(radius: number, height: number, material: Three.MeshBasicMaterial, angle: number, sun: Sun, scene: Three.Scene){
 
@@ -25,6 +28,7 @@ class SunRay {
 
         this.SetAngle(angle);
 
+        this.wireframe = new Wireframe(this.mesh);
         scene.add(this.mesh);
 
     }

@@ -17,6 +17,7 @@ import { MathUtils } from 'three';
 
 import Sun from "../objects/Sun";
 import Cloud from '../objects/Cloud';
+import Wireframe from "../objects/Wireframe";
 
 @Component({
   selector: 'app-dashboard',
@@ -46,13 +47,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   private textureLoader = new Three.TextureLoader();
-  private boxGeometry = new Three.BoxGeometry(1, 1, 1);
   private basicWireframeMat = new Three.MeshPhongMaterial({side: Three.FrontSide, color: 0x000000, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
   
   private ambientLight = new Three.AmbientLight(0xFFFFFF);
 
   private renderer!: Three.WebGLRenderer;
   private scene!: Three.Scene;
+
+  private planeGeometry: Three.PlaneGeometry = new Three.PlaneGeometry(200, 300, 4, 4);
+  private plane: Three.Mesh = new Three.Mesh(this.planeGeometry, this.basicWireframeMat);
+  private planeWireframe: Wireframe = new Wireframe(this.plane);
 
   private sun?: Sun;
   private cloud?: Cloud;
@@ -89,11 +93,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.scene.background = new Three.Color(0x000000);
 
     //Create objects/actors, but whatever I called them objects which in retrospect was VERY vague but this is a small project so should be ok.
-    this.sun = new Sun(40, 50, 12, this.basicWireframeMat, this.scene);
+    this.sun = new Sun(100, 150, 15, this.basicWireframeMat, this.scene);
     this.cloud = new Cloud(5, this.basicWireframeMat, this.scene);
 
-    let gridHelper = new Three.GridHelper(400, 100);
-    this.scene.add(gridHelper);
+    this.plane.rotation.x = -1.57;
+    this.scene.add(this.plane);
 
     //Initialize Lighting
     this.scene.add(this.ambientLight);
@@ -109,7 +113,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.camera.rotation.z = 1.55;
 
     this.camera.position.x  = 50;
-    this.camera.position.y = 10;
+    this.camera.position.y = 15;
     this.camera.position.z = 0;
 
   }
@@ -137,22 +141,18 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         }
 
         let dt = currentTime - component.lastTime;
-        component.deltaTime = dt
+        component.deltaTime = dt;
         component.totalElapsedTime += dt;
 
         component.lastTime = currentTime;
 
       }
 
-      console.log(Math.floor(component.totalElapsedTime / 1000));
-
-      if(Math.floor(component.totalElapsedTime / 1000) % 2 == 0){
-        //component.spawnRaindrop();
-        console.log("Raindrop spawned");
-      }
-
       if(component.sun){
         component.sun.Animate(component.totalElapsedTime, component.deltaTime);
+      }
+      if(component.cloud){
+        component.cloud.Animate(component.totalElapsedTime, component.deltaTime);
       }
 
       component.renderer.render(component.scene, component.camera);

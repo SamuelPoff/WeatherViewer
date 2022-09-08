@@ -1,10 +1,12 @@
 import * as Three from "three";
 
 import SunRay from "./SunRay";
+import Wireframe from "./Wireframe";
 
 class Sun{
 
     mesh: Three.Mesh;
+    wireframe: Wireframe;
 
     radius: number = 0;
     sunRays: SunRay[] = [];
@@ -25,16 +27,12 @@ class Sun{
         for(let i = 0; i < numSunRays; i++){
 
             let angle = angleIncrement * i;
-            let sunRay = new SunRay(1, 30, mesh, angle, this, scene);
+            let sunRay = new SunRay(3, 50, mesh, angle, this, scene);
 
             this.sunRays.push(sunRay);
         }
 
-        //Construct wireframe
-        let wireframeGeo = new Three.EdgesGeometry(this.mesh.geometry);
-        let wireframeMat = new Three.LineBasicMaterial( {color: 0xffffff} );
-        let wireframe = new Three.LineSegments(wireframeGeo, wireframeMat);
-        this.mesh.add(wireframe);
+        this.wireframe = new Wireframe(this.mesh);
 
         scene.add(this.mesh);
 
