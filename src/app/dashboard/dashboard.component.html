@@ -30,9 +30,9 @@
     </div>
     -->
 
-    <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData"></app-weather-data-details>
+    <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData" [unit]="unit"></app-weather-data-details>
 
     <app-current-weather-view *ngIf="currentWeatherData" [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
 
-    <app-weather-data-details *ngFor="let forecastData of weatherForecastData" [forecastData]="forecastData" ></app-weather-data-details>
+    <app-weather-data-details *ngFor="let forecastData of weatherForecastData" [forecastData]="forecastData" [unit]="unit"></app-weather-data-details>
 </div>

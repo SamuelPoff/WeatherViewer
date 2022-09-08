@@ -11,17 +11,36 @@ export class WeatherDataDetailsComponent implements OnInit {
   @Input() forecastData: any;
   @Input() unit: string = "c";
 
+  max_temperature: number = 0;
+  min_temperature: number = 0;
+  avg_temperature: number = 0;
+
   constructor() { }
 
   ngOnInit(): void {
 
-
+    this.assign_unit_dependant_values(this.unit);
 
   }
 
   ngOnChanges(changes: any): void {
 
+    this.assign_unit_dependant_values(changes.unit.currentValue);
 
+  }
+
+  assign_unit_dependant_values(unit: string){
+
+    if(unit == 'c'){
+      this.max_temperature = this.forecastData.day.maxtemp_c;
+      this.min_temperature = this.forecastData.day.mintemp_c;
+      this.avg_temperature = this.forecastData.day.avgtemp_c;
+    }
+    else{
+      this.max_temperature = this.forecastData.day.maxtemp_f;
+      this.min_temperature = this.forecastData.day.mintemp_f;
+      this.avg_temperature = this.forecastData.day.avgtemp_f;
+    }
 
   }
 
