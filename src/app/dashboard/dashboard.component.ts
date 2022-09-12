@@ -94,7 +94,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     //Create objects/actors, but whatever I called them objects which in retrospect was VERY vague but this is a small project so should be ok.
     this.sun = new Sun(100, 150, 15, this.basicWireframeMat, this.scene);
-    this.cloud = new Cloud(5, this.basicWireframeMat, this.scene);
+    this.cloud = new Cloud(5, this.basicWireframeMat, this.scene, new Three.Vector3(0, 40, 0));
 
     this.plane.rotation.x = -1.57;
     this.scene.add(this.plane);
