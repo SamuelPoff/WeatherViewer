@@ -13,7 +13,7 @@ import { Address } from 'ngx-google-places-autocomplete/objects/address';
 import * as Three from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import { timestamp } from 'rxjs';
-import { MathUtils } from 'three';
+import { MathUtils, Vector2 } from 'three';
 
 import Sun from "../objects/Sun";
 import Cloud from '../objects/Cloud';
@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   @Input() public cameraZ = 30;
   @Input() public FOV: number = 75;
   @Input() public nearClippingPlane: number = 1;
-  @Input() public farClippingPlane: number = 1000;
+  @Input() public farClippingPlane: number = 2000;
 
   public camera!: Three.PerspectiveCamera;
   private get canvas(): HTMLCanvasElement{
@@ -54,9 +54,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private renderer!: Three.WebGLRenderer;
   private scene!: Three.Scene;
 
-  private planeGeometry: Three.PlaneGeometry = new Three.PlaneGeometry(200, 300, 4, 4);
-  private plane: Three.Mesh = new Three.Mesh(this.planeGeometry, this.basicWireframeMat);
-  private planeWireframe: Wireframe = new Wireframe(this.plane);
+  private worldWidth: number = 256;
+  private worldHeight: number = 256;
+
+  private planeGeometry: Three.PlaneGeometry = new Three.PlaneGeometry(500, 500, this.worldWidth-1, this.worldHeight-1);
+  private plane?: Three.Mesh;
+  private planeWireframe?: Wireframe;
 
   private sun?: Sun;
   private cloud?: Cloud;
@@ -93,11 +96,31 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.scene.background = new Three.Color(0x000000);
 
     //Create objects/actors, but whatever I called them objects which in retrospect was VERY vague but this is a small project so should be ok.
-    this.sun = new Sun(100, 150, 15, this.basicWireframeMat, this.scene);
+    this.sun = new Sun(100, 250, 15, this.basicWireframeMat, this.scene);
     this.cloud = new Cloud(5, this.basicWireframeMat, this.scene, new Three.Vector3(0, 40, 0));
 
-    this.plane.rotation.x = -1.57;
+    //Initialize plane
+    this.plane = new Three.Mesh(this.planeGeometry, this.basicWireframeMat);
+
+    let height = this.generateHeightmap(this.worldWidth, this.worldHeight);
+
+    //Rotate by -PI/2 to make plane flat instead of up-and-down
+    this.planeGeometry.rotateX(-1.57);
+
+    const verticies: Float32Array = Float32Array.from(this.planeGeometry.attributes['position'].array);
+    
+    for(let i = 0, j = 0; i < height.length; i++, j += 3){
+
+      verticies[j+1] = height[i];
+
+    }
+
+    this.planeGeometry.setAttribute('position', new Three.BufferAttribute(verticies, 3));
+    this.plane = new Three.Mesh(this.planeGeometry, this.basicWireframeMat);
+    
     this.scene.add(this.plane);
+
+    this.planeWireframe = new Wireframe(this.plane);
 
     //Initialize Lighting
     this.scene.add(this.ambientLight);
@@ -164,6 +187,26 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }());
 
   }
+
+  generateHeightmap(worldWidth: number, worldHeight: number): number[]{
+
+    let height: number[] = new Array<number>(worldWidth * worldHeight);
+
+    for(let x = 0; x < worldWidth; x++){
+      for(let y = 0; y < worldHeight; y++){
+
+        let center = new Vector2(worldWidth/2, worldHeight/2);
+        let distance = new Vector2(x,y).distanceTo(center);
+
+        height[x + (worldWidth * y)] = Math.sin(distance) * Math.random() * 3 + ( Math.abs(Math.pow(y - (worldWidth/2), 2) * 0.002) );
+Math.pow
+      }
+    }
+
+    return height;
+
+  }
+
 
   ngAfterViewInit(): void{
     this.createScene();

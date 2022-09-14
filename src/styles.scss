@@ -71,6 +71,17 @@ $wireframe-color: #ffffff;
 .weather-details{
 
     color: $wireframe-color;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.weather-container{
+
+    color: $wireframe-color;
     min-width: 200px;
 
     margin: 0;

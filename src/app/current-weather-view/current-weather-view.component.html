@@ -1,14 +1,23 @@
+
 <div class="weather-details">
-    <div class="weather-header">
-        <p>Temperature: {{temperature}} </p>
-        <p>Last updated at: {{weatherData.last_updated}}</p>
-        <p>Feels Like: {{feelslike}}</p>
-        <p class="italic">{{weatherData.condition.text}}</p>
+
+    <h1>Current</h1>
+
+    <div class="weather-container">
+
+        <div class="weather-header">
+            <p>Temperature: {{temperature}} </p>
+            <p>Last updated at: {{weatherData.last_updated}}</p>
+            <p>Feels Like: {{feelslike}}</p>
+            <p class="italic">{{weatherData.condition.text}}</p>
+        </div>
+
+        <div class="weather-additional-info">
+        <p>Wind Speed: {{weatherData.wind_mph}}</p>
+        <p>Precipitation: {{weatherData.precip_mm}}</p>
+        <p>UV Index: {{weatherData.uv}}</p>
+        </div>
+
     </div>
 
-    <div class="weather-additional-info">
-    <p>Wind Speed: {{weatherData.wind_mph}}</p>
-    <p>Precipitation: {{weatherData.precip_mm}}</p>
-    <p>UV Index: {{weatherData.uv}}</p>
-    </div>
 </div>

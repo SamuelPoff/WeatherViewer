@@ -48,8 +48,6 @@ class Cloud{
         this.mesh.scale.y = Cloud.baseScale.y + scaleOffset;
         this.mesh.scale.z = Cloud.baseScale.z + scaleOffset;
 
-        console.log((totalElapsedTime / 1000) % 2);
-
         if((totalElapsedTime / 1000) % 2 <= 0.02){
             this.SpawnRaindrop();
         }
