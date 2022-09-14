@@ -54,10 +54,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private renderer!: Three.WebGLRenderer;
   private scene!: Three.Scene;
 
-  private worldWidth: number = 256;
-  private worldHeight: number = 256;
+  private worldWidth: number = 64;
+  private worldHeight: number = 64;
 
-  private planeGeometry: Three.PlaneGeometry = new Three.PlaneGeometry(500, 500, this.worldWidth-1, this.worldHeight-1);
+  private planeGeometry: Three.PlaneGeometry = new Three.PlaneGeometry(500, 800, this.worldWidth-1, this.worldHeight-1);
   private plane?: Three.Mesh;
   private planeWireframe?: Wireframe;
 
@@ -96,7 +96,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.scene.background = new Three.Color(0x000000);
 
     //Create objects/actors, but whatever I called them objects which in retrospect was VERY vague but this is a small project so should be ok.
-    this.sun = new Sun(100, 250, 15, this.basicWireframeMat, this.scene);
+    this.sun = new Sun(100, 300, 15, this.basicWireframeMat, this.scene);
     this.cloud = new Cloud(5, this.basicWireframeMat, this.scene, new Three.Vector3(0, 40, 0));
 
     //Initialize plane
@@ -198,7 +198,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         let center = new Vector2(worldWidth/2, worldHeight/2);
         let distance = new Vector2(x,y).distanceTo(center);
 
-        height[x + (worldWidth * y)] = Math.sin(distance) * Math.random() * 3 + ( Math.abs(Math.pow(y - (worldWidth/2), 2) * 0.002) );
+        height[x + (worldWidth * y)] = Math.random() * 5 + ( Math.abs(Math.pow(y - (worldWidth/2), 2) * 0.04) );
 Math.pow
       }
     }
