@@ -62,7 +62,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private planeWireframe?: Wireframe;
 
   private sun?: Sun;
-  private cloud?: Cloud;
+  cloud?: Cloud;
 
   private totalElapsedTime: number = 0;
   private deltaTime: number = 0;

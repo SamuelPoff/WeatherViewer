@@ -1,5 +1,6 @@
 import * as Three from "three";
 
+import Cloud from "./Cloud";
 import Wireframe from "./Wireframe";
 
 class Rain{
@@ -11,10 +12,14 @@ class Rain{
     mesh: Three.Mesh;
     wireframe: Wireframe;
 
+    cloud: Cloud;
+
     direction: Three.Vector3;
     speed: number;
 
-    constructor(material: Three.Material, direction: Three.Vector3, speed: number){
+    lifetime: number = 0;
+
+    constructor(material: Three.Material, direction: Three.Vector3, speed: number, cloud: Cloud){
 
         let geometry = new Three.ConeGeometry(Rain.baseRadius, Rain.baseHeight, Rain.radialSegments, 1);
         this.mesh = new Three.Mesh(geometry, material);
@@ -27,14 +32,21 @@ class Rain{
         this.direction = direction;
         this.speed = speed;
 
+        this.cloud = cloud;
+
     }
 
-    Animate(){
+    Animate(totalElapsedTime: number, deltaTime: number){
 
         //Just fly toward direction for now. The cloud that spawns this will take care of culling.
         //Later maybe add more effects or have it do something when it hits the "ground"
 
         this.mesh.position.add( this.direction.multiplyScalar(this.speed) );
+
+        this.lifetime += deltaTime;
+        if(this.lifetime >= 2000) {
+            this.cloud.RemoveRaindrop(this);
+        }
 
     }
 

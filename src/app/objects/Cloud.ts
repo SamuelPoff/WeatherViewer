@@ -48,19 +48,19 @@ class Cloud{
         this.mesh.scale.y = Cloud.baseScale.y + scaleOffset;
         this.mesh.scale.z = Cloud.baseScale.z + scaleOffset;
 
-        if((totalElapsedTime / 25) % 2 <= 0.02){
+        if((totalElapsedTime / 25) % 2 <= 0.05){
             this.SpawnRaindrop();
         }
 
         this.raindrops.forEach((raindrop)=>{
-            raindrop.Animate();
+            raindrop.Animate(totalElapsedTime, deltaTime);
         });
 
     }
 
     SpawnRaindrop(){
 
-        let raindrop = new Rain(this.material, this.rainDirection, 1);
+        let raindrop = new Rain(this.material, this.rainDirection, 1, this);
         
         let x = ((Math.random() * 2) - 1) * 10;
         let z = ((Math.random() * 2) - 1) * 30;
@@ -71,6 +71,15 @@ class Cloud{
 
         this.raindrops.push(raindrop);
 
+    }
+
+    RemoveRaindrop(raindrop: Rain){
+
+        raindrop.mesh.geometry.dispose();
+        this.mesh.remove(raindrop.mesh);
+        this.raindrops.splice(this.raindrops.indexOf(raindrop), 1);
+
+        
     }
 
 }
