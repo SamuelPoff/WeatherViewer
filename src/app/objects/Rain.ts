@@ -8,6 +8,7 @@ class Rain{
     static baseHeight: number = 5;
     static baseRadius: number = 0.25;
     static radialSegments: number = 5;
+    static baseScale: number = 1;
 
     mesh: Three.Mesh;
     wireframe: Wireframe;
@@ -31,6 +32,10 @@ class Rain{
 
         this.direction = direction;
         this.speed = speed;
+
+        //Randomize scaleprivate
+        let randomScale = Rain.baseScale + (((Math.random() * 2) - 1) * 0.5);
+        this.mesh.scale.multiplyScalar(randomScale);
 
         this.cloud = cloud;
 
