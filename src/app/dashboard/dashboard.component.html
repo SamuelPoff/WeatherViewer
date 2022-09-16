@@ -32,6 +32,9 @@
     <div *ngIf="cloud" style="color: white;">
         Raindrops: {{cloud.raindrops.length}}
     </div>
+    <div>
+        <button type="button" (click)="moveScene()">Test</button>
+    </div>
 
     <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData" [unit]="unit"></app-weather-data-details>
 

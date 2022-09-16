@@ -18,6 +18,7 @@ import { MathUtils, Vector2 } from 'three';
 import Sun from "../objects/Sun";
 import Cloud from '../objects/Cloud';
 import Wireframe from "../objects/Wireframe";
+import WeatherData from "../objects/WeatherData";
 
 @Component({
   selector: 'app-dashboard',
@@ -90,6 +91,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   private createScene() {
+
 
     //Setup Scene
     this.scene = new Three.Scene();
@@ -183,8 +185,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       requestAnimationFrame(render);
 
       
-      
     }());
+
+  }
+
+  moveScene(){
+    if(this.scene){
+      this.scene.position.x += 10;
+    }
 
   }
 
