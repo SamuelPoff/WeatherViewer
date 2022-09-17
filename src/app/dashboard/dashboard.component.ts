@@ -19,6 +19,7 @@ import Sun from "../objects/Sun";
 import Cloud from '../objects/Cloud';
 import Wireframe from "../objects/Wireframe";
 import WeatherData from "../objects/WeatherData";
+import Terrain from "../objects/Terrain";
 
 @Component({
   selector: 'app-dashboard',
@@ -64,6 +65,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   private sun?: Sun;
   cloud?: Cloud;
+  private terrain?: Terrain;
 
   private totalElapsedTime: number = 0;
   private deltaTime: number = 0;
@@ -102,27 +104,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.cloud = new Cloud(5, this.basicWireframeMat, this.scene, new Three.Vector3(0, 40, 0));
 
     //Initialize plane
-    this.plane = new Three.Mesh(this.planeGeometry, this.basicWireframeMat);
-
     let height = this.generateHeightmap(this.worldWidth, this.worldHeight);
 
-    //Rotate by -PI/2 to make plane flat instead of up-and-down
-    this.planeGeometry.rotateX(-1.57);
-
-    const verticies: Float32Array = Float32Array.from(this.planeGeometry.attributes['position'].array);
-    
-    for(let i = 0, j = 0; i < height.length; i++, j += 3){
-
-      verticies[j+1] = height[i];
-
+    this.terrain = new Terrain(this.basicWireframeMat, height);
+    if(this.terrain){
+      this.scene.add(this.terrain.mesh);
     }
-
-    this.planeGeometry.setAttribute('position', new Three.BufferAttribute(verticies, 3));
-    this.plane = new Three.Mesh(this.planeGeometry, this.basicWireframeMat);
-    
-    this.scene.add(this.plane);
-
-    this.planeWireframe = new Wireframe(this.plane);
 
     //Initialize Lighting
     this.scene.add(this.ambientLight);
