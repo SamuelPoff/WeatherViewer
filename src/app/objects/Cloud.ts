@@ -4,7 +4,9 @@ import { Vector3 } from "three";
 import Rain from "./Rain";
 import Wireframe from "./Wireframe";
 
-class Cloud{
+import Animatable from "../interfaces/Animatable";
+
+class Cloud implements Animatable{
 
     static baseScale: Three.Vector3 = new Three.Vector3(2,1,2);
 

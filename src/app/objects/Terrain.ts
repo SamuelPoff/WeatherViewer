@@ -7,9 +7,9 @@ class Terrain{
     mesh: Three.Mesh;
     wireframe: Wireframe;
 
-    constructor(material: Three.Material, heightmap: Array<number>){
+    constructor(worldWidth: number, worldHeight: number, material: Three.Material, heightmap: Array<number>){
 
-        let geometry = new Three.PlaneGeometry(500, 800, 64, 64);
+        let geometry = new Three.PlaneGeometry(500, 800, worldWidth-1, worldHeight-1);
         geometry.rotateX(-1.57);
 
         //Copy geometry data into verticies to alter using heightmap

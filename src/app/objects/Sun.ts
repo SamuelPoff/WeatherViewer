@@ -3,7 +3,9 @@ import * as Three from "three";
 import SunRay from "./SunRay";
 import Wireframe from "./Wireframe";
 
-class Sun{
+import Animatable from "../interfaces/Animatable";
+
+class Sun implements Animatable{
 
     mesh: Three.Mesh;
     wireframe: Wireframe;
@@ -14,10 +16,10 @@ class Sun{
     private sunRotationSpeed = 0.005;
     private sunRayRotationSpeed = 0.001;
 
-    constructor(radius: number, xOffset:number, numSunRays: number, mesh: Three.MeshBasicMaterial, scene: Three.Scene){
+    constructor(radius: number, xOffset:number, numSunRays: number, material: Three.MeshBasicMaterial, scene: Three.Scene){
 
         let geometry = new Three.IcosahedronGeometry(radius, 2);
-        this.mesh = new Three.Mesh(geometry, mesh);
+        this.mesh = new Three.Mesh(geometry, material);
         this.mesh.position.x = -xOffset;
 
         this.radius = radius;
@@ -27,7 +29,7 @@ class Sun{
         for(let i = 0; i < numSunRays; i++){
 
             let angle = angleIncrement * i;
-            let sunRay = new SunRay(3, 50, mesh, angle, this, scene);
+            let sunRay = new SunRay(3, 50, material, angle, this, scene);
 
             this.sunRays.push(sunRay);
         }

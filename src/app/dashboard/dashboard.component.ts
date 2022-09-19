@@ -21,6 +21,8 @@ import Wireframe from "../objects/Wireframe";
 import WeatherData from "../objects/WeatherData";
 import Terrain from "../objects/Terrain";
 
+import WeatherScene from "../objects/WeatherScene";
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -49,26 +51,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   private textureLoader = new Three.TextureLoader();
-  private basicWireframeMat = new Three.MeshPhongMaterial({side: Three.FrontSide, color: 0x000000, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
-  
-  private ambientLight = new Three.AmbientLight(0xFFFFFF);
 
   private renderer!: Three.WebGLRenderer;
-  private scene!: Three.Scene;
-
-  private worldWidth: number = 64;
-  private worldHeight: number = 64;
-
-  private planeGeometry: Three.PlaneGeometry = new Three.PlaneGeometry(500, 800, this.worldWidth-1, this.worldHeight-1);
-  private plane?: Three.Mesh;
-  private planeWireframe?: Wireframe;
-
-  private sun?: Sun;
-  cloud?: Cloud;
-  private terrain?: Terrain;
 
   private totalElapsedTime: number = 0;
   private deltaTime: number = 0;
+
+  private weatherScene = new WeatherScene();
 
   private lastTime?: DOMHighResTimeStamp;
 
@@ -93,27 +82,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   private createScene() {
-
-
-    //Setup Scene
-    this.scene = new Three.Scene();
-    this.scene.background = new Three.Color(0x000000);
-
-    //Create objects/actors, but whatever I called them objects which in retrospect was VERY vague but this is a small project so should be ok.
-    this.sun = new Sun(100, 300, 15, this.basicWireframeMat, this.scene);
-    this.cloud = new Cloud(5, this.basicWireframeMat, this.scene, new Three.Vector3(0, 40, 0));
-
-    //Initialize plane
-    let height = this.generateHeightmap(this.worldWidth, this.worldHeight);
-
-    this.terrain = new Terrain(this.basicWireframeMat, height);
-    if(this.terrain){
-      this.scene.add(this.terrain.mesh);
-    }
-
-    //Initialize Lighting
-    this.scene.add(this.ambientLight);
-    
 
     //Initialize camera
     let aspectRatio = this.canvas.clientWidth / this.canvas.clientHeight;
@@ -160,26 +128,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
       }
 
-      if(component.sun){
-        component.sun.Animate(component.totalElapsedTime, component.deltaTime);
-      }
-      if(component.cloud){
-        component.cloud.Animate(component.totalElapsedTime, component.deltaTime);
-      }
+      //Animation Loop ----
+      component.weatherScene.Animate(component.totalElapsedTime, component.deltaTime);
 
-      component.renderer.render(component.scene, component.camera);
+      let scene = component.weatherScene.getScene();
+      component.renderer.render(scene, component.camera);
 
       requestAnimationFrame(render);
 
       
     }());
-
-  }
-
-  moveScene(){
-    if(this.scene){
-      this.scene.position.x += 10;
-    }
 
   }
 

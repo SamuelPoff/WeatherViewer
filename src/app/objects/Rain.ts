@@ -3,7 +3,9 @@ import * as Three from "three";
 import Cloud from "./Cloud";
 import Wireframe from "./Wireframe";
 
-class Rain{
+import Animatable from "../interfaces/Animatable";
+
+class Rain implements Animatable{
 
     static baseHeight: number = 5;
     static baseRadius: number = 0.25;
