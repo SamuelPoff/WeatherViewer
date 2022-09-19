@@ -16,20 +16,26 @@ class Sun implements Animatable{
     private sunRotationSpeed = 0.005;
     private sunRayRotationSpeed = 0.001;
 
-    constructor(radius: number, xOffset:number, numSunRays: number, material: Three.MeshBasicMaterial, scene: Three.Scene){
+    private strength = 1;
+
+    constructor(radius: number, xOffset:number, numSunRays: number, strength: number, material: Three.MeshBasicMaterial, scene: Three.Scene){
 
         let geometry = new Three.IcosahedronGeometry(radius, 2);
         this.mesh = new Three.Mesh(geometry, material);
         this.mesh.position.x = -xOffset;
 
         this.radius = radius;
+        this.strength = strength;
 
         //Gonna keep all angles in RADIANS just so I dont forget to convert and then wonder why everything looks random and wrong
         let angleIncrement = (Math.PI*2) / numSunRays;
+
+        let sunRayBaseRadius = 3;
+        let sunRayBaseHeight = 50;
         for(let i = 0; i < numSunRays; i++){
 
             let angle = angleIncrement * i;
-            let sunRay = new SunRay(3, 50, material, angle, this, scene);
+            let sunRay = new SunRay(sunRayBaseRadius * strength, sunRayBaseHeight * strength, material, angle, this, scene);
 
             this.sunRays.push(sunRay);
         }
@@ -43,12 +49,14 @@ class Sun implements Animatable{
     Animate(totalElapsedTime: number, deltaTime: number){
 
         this.mesh.rotation.y += this.sunRotationSpeed;
+        let frequency = 0.003;
+        let amplitude = 0.3;
 
         for(let i = 0; i < this.sunRays.length; i++){
 
             let sunRay = this.sunRays[i];
 
-            let scaleOffset = (Math.sin(totalElapsedTime * 0.001) * 0.25)
+            let scaleOffset = (Math.sin(totalElapsedTime * frequency) * amplitude)
             if(i%2 == 0){
                 scaleOffset *= -1;
             }

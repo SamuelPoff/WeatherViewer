@@ -8,24 +8,38 @@ import Animatable from "../interfaces/Animatable";
 
 class Cloud implements Animatable{
 
-    static baseScale: Three.Vector3 = new Three.Vector3(2,1,2);
+    baseScale: Three.Vector3 = new Three.Vector3(3,1,3);
 
     mesh: Three.Mesh;
     wireframe: Wireframe;
     material: Three.Material;
 
+    raining: boolean = false;
+
     rainDirection: Three.Vector3;
     raindrops: Rain[] = [];
 
-    constructor(radius: number, material: Three.MeshBasicMaterial, scene: Three.Scene, startingPosition? : Three.Vector3){
+    animationOffset: number = 0;
+
+    constructor(radius: number, material: Three.MeshBasicMaterial, scene: Three.Scene, raining: boolean, startingPosition? : Three.Vector3, animationOffset?: number){
 
         this.material = material;
         let geometry = new Three.TetrahedronGeometry(radius,2);
 
+        this.raining = raining;
+        if(animationOffset){
+            this.animationOffset = animationOffset;
+            console.log("Animation Offset: " + this.animationOffset);
+        }
+
+        this.baseScale.x += ((Math.random() * 2) - 1);
+        this.baseScale.y += ((Math.random() * 2) - 1) * 0.25;
+        this.baseScale.z += ((Math.random() * 2) - 1);
+
         this.mesh = new Three.Mesh(geometry, material);
-        this.mesh.scale.x = Cloud.baseScale.x;
-        this.mesh.scale.y = Cloud.baseScale.y;
-        this.mesh.scale.z = Cloud.baseScale.z;
+        this.mesh.scale.x = this.baseScale.x;
+        this.mesh.scale.y = this.baseScale.y;
+        this.mesh.scale.z = this.baseScale.z;
 
         //this.mesh.position.y = 25;
         if(startingPosition){
@@ -45,18 +59,20 @@ class Cloud implements Animatable{
 
     Animate(totalElapsedTime: number, deltaTime: number){
 
-        let scaleOffset = Math.sin(totalElapsedTime * 0.001) * 0.1;
-        this.mesh.scale.x = Cloud.baseScale.x + scaleOffset;
-        this.mesh.scale.y = Cloud.baseScale.y + scaleOffset;
-        this.mesh.scale.z = Cloud.baseScale.z + scaleOffset;
+        let scaleOffset = (Math.sin(totalElapsedTime * 0.001 + this.animationOffset) * 0.1);
+        this.mesh.scale.x = this.baseScale.x + scaleOffset;
+        this.mesh.scale.y = this.baseScale.y + scaleOffset;
+        this.mesh.scale.z = this.baseScale.z + scaleOffset;
 
-        if((totalElapsedTime / 5) % 2 >= 0.02){
-            this.SpawnRaindrop();
+        if(this.raining){
+            if((totalElapsedTime / 5) % 2 >= 0.02){
+                this.SpawnRaindrop();
+            }
+
+            this.raindrops.forEach((raindrop)=>{
+                raindrop.Animate(totalElapsedTime, deltaTime);
+            });
         }
-
-        this.raindrops.forEach((raindrop)=>{
-            raindrop.Animate(totalElapsedTime, deltaTime);
-        });
 
     }
 

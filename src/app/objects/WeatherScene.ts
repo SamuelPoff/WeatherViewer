@@ -15,7 +15,7 @@ class WeatherScene{
     private scene: Three.Scene;
     private animatables: Array<Animatable> = [];
 
-    private material = new Three.MeshPhongMaterial({side: Three.FrontSide, color: 0x000000, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
+    private material = new Three.MeshPhongMaterial({side: Three.FrontSide, color: 0x104012, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
 
     constructor(weatherData?: WeatherData){
 
@@ -26,16 +26,7 @@ class WeatherScene{
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
         //: spawn amount of raindrops appropriate for how much its supposed to rain
 
-        let sun = new Sun(100, 300, 15, this.material, this.scene);
-        this.animatables.push(sun);
         
-        //let cloud = new Cloud(5, this.material, this.scene, new Three.Vector3(0, 40, 0));
-        //this.animatables.push(cloud);
-
-        let heightmap = this.generateHeightmap(64, 64);
-        let terrain = new Terrain(64, 64, this.material, heightmap);
-
-        this.scene.add(terrain.mesh);
 
     }
 
@@ -57,13 +48,51 @@ class WeatherScene{
         this.animatables = new Array<Animatable>();
     }
 
+    //Construct the current scene based on the weather data passed in.
     ConstructScene(weatherData: WeatherData){
 
+        let sunRays = 0;
+        let strength = 1;
+        if(weatherData.condition == "Sunny"){
+            sunRays = 18;
+            strength = 1.4;
+        }
+        else if(weatherData.condition == "Partly Cloudy"){
+            sunRays = 16;
+            strength = 0.8;
+        }
         
+        let sun = new Sun(100, 300, sunRays, strength, this.material, this.scene);
+        this.animatables.push(sun);
+
+        let cloudBaseHeight = 50;
+
+        let cloudHeightVar = 5;
+
+        for(let x = -10; x < 10; x++){
+            for(let z = -10; z < 10; z++){
+
+                if(Math.random() >= 0.76){
+                    let randomHeightOffset = ((Math.random() * 2) - 1) * cloudHeightVar;
+                    let cloud = new Cloud(5, this.material, this.scene, false, new Three.Vector3(x * 19 + Math.random() * 2, cloudBaseHeight + randomHeightOffset, z * 19 + Math.random() * 2), (Math.random() * 2) -1 );
+                    this.animatables.push(cloud);
+                }
+
+                
+
+            }
+        }
+
+
+        let heightmap = this.generateHeightmap(64, 64);
+        let terrain = new Terrain(64, 64, this.material, heightmap);
+
+        this.scene.add(terrain.mesh);
 
     }
 
 
+    //Generate the height data for the plane geometry to make the terrain look vapor-wavey
     generateHeightmap(worldWidth: number, worldHeight: number): number[]{
 
         let height: number[] = new Array<number>(worldWidth * worldHeight);

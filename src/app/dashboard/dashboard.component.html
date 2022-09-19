@@ -30,6 +30,11 @@
     </div>
     -->
 
+    <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
+    <button type="button" (click)="changeWeather('Partly Cloudy')">[TEST] Partly Cloudy</button>
+    <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>
+    <button type="button">[TEST] Light Rain</button>
+
     <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData" [unit]="unit"></app-weather-data-details>
 
     <app-current-weather-view *ngIf="currentWeatherData" [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
