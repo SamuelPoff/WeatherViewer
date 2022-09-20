@@ -22,6 +22,7 @@ class Sun implements Animatable{
 
         let geometry = new Three.IcosahedronGeometry(radius, 2);
         this.mesh = new Three.Mesh(geometry, material);
+        this.mesh.position.y = 100;
         this.mesh.position.x = -xOffset;
 
         this.radius = radius;

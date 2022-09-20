@@ -38,7 +38,7 @@ class SunRay {
         this.angle = value;
         
         let z = Math.cos(value) * (this.sun.radius + this.radiusOffset);
-        let y = Math.sin(value) * (this.sun.radius + this.radiusOffset);
+        let y = Math.sin(value) * (this.sun.radius + this.radiusOffset) + this.sun.mesh.position.y;
 
         this.mesh.position.x = this.sun.mesh.position.x;
         this.mesh.position.z = z;

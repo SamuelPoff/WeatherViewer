@@ -20,6 +20,7 @@ class Cloud implements Animatable{
     raindrops: Rain[] = [];
 
     animationOffset: number = 0;
+    timer: number = 0;
 
     constructor(radius: number, material: Three.MeshBasicMaterial, scene: Three.Scene, raining: boolean, startingPosition? : Three.Vector3, animationOffset?: number){
 
@@ -32,9 +33,11 @@ class Cloud implements Animatable{
             console.log("Animation Offset: " + this.animationOffset);
         }
 
-        this.baseScale.x += ((Math.random() * 2) - 1);
+        this.timer = Math.random() * 990;
+
+        this.baseScale.x += ((Math.random() * 3) - 1.5);
         this.baseScale.y += ((Math.random() * 2) - 1) * 0.25;
-        this.baseScale.z += ((Math.random() * 2) - 1);
+        this.baseScale.z += ((Math.random() * 3) - 1.5);
 
         this.mesh = new Three.Mesh(geometry, material);
         this.mesh.scale.x = this.baseScale.x;
@@ -64,9 +67,17 @@ class Cloud implements Animatable{
         this.mesh.scale.y = this.baseScale.y + scaleOffset;
         this.mesh.scale.z = this.baseScale.z + scaleOffset;
 
+        
+
         if(this.raining){
-            if((totalElapsedTime / 5) % 2 >= 0.02){
-                this.SpawnRaindrop();
+            this.timer += deltaTime;
+            if(this.timer >= 1000){
+
+                if(Math.random() >= 0.25){
+                    this.SpawnRaindrop();
+                }
+                this.timer = 0;
+
             }
 
             this.raindrops.forEach((raindrop)=>{
@@ -78,7 +89,7 @@ class Cloud implements Animatable{
 
     SpawnRaindrop(){
 
-        let raindrop = new Rain(this.material, this.rainDirection, 1, this);
+        let raindrop = new Rain(this.material, this.rainDirection, 1.5, this);
         
         let x = ((Math.random() * 2) - 1) * 10;
         let z = ((Math.random() * 2) - 1) * 30;

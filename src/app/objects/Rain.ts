@@ -4,11 +4,12 @@ import Cloud from "./Cloud";
 import Wireframe from "./Wireframe";
 
 import Animatable from "../interfaces/Animatable";
+import { Vector3 } from "three";
 
 class Rain implements Animatable{
 
     static baseHeight: number = 5;
-    static baseRadius: number = 0.25;
+    static baseRadius: number = 0.1;
     static radialSegments: number = 5;
     static baseScale: number = 1;
 
@@ -35,7 +36,7 @@ class Rain implements Animatable{
         this.direction = direction;
         this.speed = speed;
 
-        //Randomize scaleprivate
+        //Randomize scale
         let randomScale = Rain.baseScale + (((Math.random() * 2) - 1) * 0.5);
         this.mesh.scale.multiplyScalar(randomScale);
 
@@ -48,7 +49,8 @@ class Rain implements Animatable{
         //Just fly toward direction for now. The cloud that spawns this will take care of culling.
         //Later maybe add more effects or have it do something when it hits the "ground"
 
-        this.mesh.position.add( this.direction.multiplyScalar(this.speed) );
+        let offset = new Vector3(this.direction.x * this.speed, this.direction.y * this.speed, this.direction.z * this.speed);
+        this.mesh.position.add( offset );
 
         this.lifetime += deltaTime;
         if(this.lifetime >= 2000) {
