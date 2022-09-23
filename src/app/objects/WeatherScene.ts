@@ -15,14 +15,54 @@ class WeatherScene{
     private scene: Three.Scene;
     private animatables: Array<Animatable> = [];
 
-    private material = new Three.MeshPhongMaterial({side: Three.FrontSide, color: 0x104012, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
+    private material = new Three.MeshBasicMaterial({side: Three.FrontSide, color: 0xaaaaaa, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
+    light = new Three.AmbientLight(new Three.Color(0xffffff), 0.75);
+
+    pointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 1000, 2);
+    otherPointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 600, 2);
+
+
+    mat = new Three.ShaderMaterial({
+        uniforms: {
+          color1: {
+            value: new Three.Color(0x261a46)
+          },
+          color2: {
+            value: new Three.Color(0x1d0c22)
+            
+          }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+      
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color1;
+          uniform vec3 color2;
+        
+          varying vec2 vUv;
+          
+          void main() {
+            
+            gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
+          }
+        `
+      });
+
 
     constructor(weatherData?: WeatherData){
 
         this.scene = new Three.Scene();
 
-        const bg = new Three.TextureLoader().load("assets/stars.jpg");
+        const bg = new Three.TextureLoader().load("assets/vaporwaveSky.png");
         this.scene.background = bg;
+
+        this.pointLight.position.set(-250, 100, 0);
+        this.otherPointLight.position.set(-250, 100, 0);
 
         //Construct scene based on data from weatherData
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
@@ -31,6 +71,8 @@ class WeatherScene{
         
 
     }
+
+    
 
     Animate(totalElapsedTime: number, deltaTime: number){
         this.animatables.forEach((animatable) => {
@@ -64,7 +106,9 @@ class WeatherScene{
             strength = 0.8;
         }
         
-        let sun = new Sun(100, 350, sunRays, strength, this.material, this.scene);
+        let sunMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.4});
+
+        let sun = new Sun(100, 350, sunRays, strength, sunMaterial, this.scene);
         this.animatables.push(sun);
 
         if(weatherData.condition == "Partly Cloudy"){
@@ -76,9 +120,13 @@ class WeatherScene{
         
 
         let heightmap = this.generateHeightmap(64, 64);
-        let terrain = new Terrain(64, 64, this.material, heightmap);
+        let terrain = new Terrain(64, 64, sunMaterial, heightmap);
 
         this.scene.add(terrain.mesh);
+
+        this.scene.add(this.light);
+        this.scene.add(this.pointLight);
+        this.scene.add(this.otherPointLight);
 
     }
 

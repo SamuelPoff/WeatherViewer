@@ -14,9 +14,9 @@ class SunRay {
 
     radiusOffset: number = 50;
 
-    wireframe: Wireframe;
+    //wireframe: Wireframe;
 
-    constructor(radius: number, height: number, material: Three.MeshBasicMaterial, angle: number, sun: Sun, scene: Three.Scene){
+    constructor(radius: number, height: number, material: Three.ShaderMaterial, angle: number, sun: Sun, scene: Three.Scene){
 
         this.sun = sun;
 
@@ -28,7 +28,7 @@ class SunRay {
 
         this.SetAngle(angle);
 
-        this.wireframe = new Wireframe(this.mesh);
+        //this.wireframe = new Wireframe(this.mesh);
         scene.add(this.mesh);
 
     }

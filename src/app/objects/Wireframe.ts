@@ -11,7 +11,7 @@ class Wireframe{
     constructor(mesh: Three.Mesh){
 
         let wireframeGeometry = new Three.EdgesGeometry(mesh.geometry);
-        let wireframeMaterial = new Three.LineBasicMaterial( {color: 0xffffff} );
+        let wireframeMaterial = new Three.LineBasicMaterial( {color: 0xea09f4} );
 
         this.lineSegments = new Three.LineSegments(wireframeGeometry, wireframeMaterial);
         mesh.add(this.lineSegments);
