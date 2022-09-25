@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, AfterViewInit, ViewChild, Input } from '@angular/core';
+import { Component, ElementRef, OnInit, AfterViewInit, ViewChild, Input, HostListener } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 
 import {WeatherService} from "../weather.service";
@@ -82,9 +82,23 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { }
 
+  @HostListener('window:resize')
+  onResize() {
+    this.canvasRef.nativeElement.height = window.innerHeight;
+    this.canvasRef.nativeElement.width = window.innerWidth;
+
+    this.renderer.setPixelRatio(devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+}
+
   ngOnInit(): void {
 
     this.getUserLocation();
+
+    
 
   }
 
