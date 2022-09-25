@@ -21,7 +21,6 @@ class WeatherScene{
     pointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 1000, 2);
     otherPointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 600, 2);
 
-
     mat = new Three.ShaderMaterial({
         uniforms: {
           color1: {
@@ -68,8 +67,6 @@ class WeatherScene{
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
         //: spawn amount of raindrops appropriate for how much its supposed to rain
 
-        
-
     }
 
     
@@ -106,7 +103,7 @@ class WeatherScene{
             strength = 0.8;
         }
         
-        let sunMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.4});
+        let sunMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.6});
 
         let sun = new Sun(100, 350, sunRays, strength, sunMaterial, this.scene);
         this.animatables.push(sun);

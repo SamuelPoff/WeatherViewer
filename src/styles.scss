@@ -65,8 +65,8 @@ body{
 
 }
 
-$bg-color: black;
-$wireframe-color: #ffffff;
+$bg-color: rgba(0,0,0,0.7);
+$wireframe-color: rgba(255,255,255,0.7);
 
 .weather-details{
 
@@ -86,9 +86,6 @@ $wireframe-color: #ffffff;
 
     margin: 0;
     padding: 0.5em;
-
-    border: 2px solid $wireframe-color;
-    border-radius: 10px;
 
     display: flex;
     flex-direction: column;

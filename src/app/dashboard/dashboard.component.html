@@ -18,22 +18,14 @@
 
 <!-- Reminder that WeatherApi defines the data type 'Forecast' to represent both weather history and literal weather forecasts (kinda confusing on the surface) -->
 <div class="weather">
-    <!--
-    <div *ngIf="camera" style="color: white;">
-        <p>rotX: {{camera.rotation.x}}</p>
-        <p>rotY: {{camera.rotation.y}}</p>
-        <p>rotZ: {{camera.rotation.z}}</p>
 
-        <p>posX: {{camera.position.x}}</p>
-        <p>posY: {{camera.position.y}}</p>
-        <p>posZ: {{camera.position.z}}</p>
+    <div>
+        <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
+        <button type="button" (click)="changeWeather('Partly Cloudy')">[TEST] Partly Cloudy</button>
+        <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>
+        <button type="button">[TEST] Light Rain</button>
     </div>
-    -->
-
-    <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
-    <button type="button" (click)="changeWeather('Partly Cloudy')">[TEST] Partly Cloudy</button>
-    <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>
-    <button type="button">[TEST] Light Rain</button>
+    
 
     <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData" [unit]="unit"></app-weather-data-details>
 

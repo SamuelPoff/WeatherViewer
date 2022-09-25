@@ -23,6 +23,11 @@ import Terrain from "../objects/Terrain";
 
 import WeatherScene from "../objects/WeatherScene";
 
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
+import {BloomPass} from "three/examples/jsm/postprocessing/BloomPass";
+import {FilmPass} from "three/examples/jsm/postprocessing/FilmPass";
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -60,6 +65,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private weatherScene = new WeatherScene();
 
   private lastTime?: DOMHighResTimeStamp;
+
+  effectComposer?: EffectComposer;
 
   currentWeatherData: any;
   weatherHistoryData: any[] = [];
@@ -107,6 +114,18 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     //Instaniate orbit controls
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
+    //Instaniate and setup effect composer
+    this.effectComposer = new EffectComposer(this.renderer);
+
+    const renderPass = new RenderPass(this.weatherScene.getScene(), this.camera);
+    this.effectComposer.addPass(renderPass);
+
+    const bloomPass = new BloomPass(1.2);
+    this.effectComposer.addPass(bloomPass);
+
+    const filmPass = new FilmPass(0.3, 0.3, 500, 0);
+    this.effectComposer.addPass(filmPass);
+
     this.camera.rotation.x = -1.55;
     this.camera.rotation.y = 1.55;
     this.camera.rotation.z = 1.55;
@@ -132,7 +151,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       component.weatherScene.Animate(component.totalElapsedTime, component.deltaTime);
 
       let scene = component.weatherScene.getScene();
-      component.renderer.render(scene, component.camera);
+      //component.renderer.render(scene, component.camera);
+      component.effectComposer?.render();
+      
 
       requestAnimationFrame(render);
 
