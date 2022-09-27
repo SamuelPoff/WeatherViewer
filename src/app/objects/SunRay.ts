@@ -16,7 +16,7 @@ class SunRay {
 
     //wireframe: Wireframe;
 
-    constructor(radius: number, height: number, material: Three.ShaderMaterial, angle: number, sun: Sun, scene: Three.Scene){
+    constructor(radius: number, height: number, material: Three.Material, angle: number, sun: Sun, scene: Three.Scene){
 
         this.sun = sun;
 

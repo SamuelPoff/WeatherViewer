@@ -8,6 +8,8 @@ import Cloud from './Cloud';
 
 import Animatable from "../interfaces/Animatable";
 
+import {CreateGradientShader} from "./Shaders";
+
 //Encapsulate three js scene handling into one spot
 //Handle the composition of the scene based on weather information
 class WeatherScene{
@@ -15,43 +17,13 @@ class WeatherScene{
     private scene: Three.Scene;
     private animatables: Array<Animatable> = [];
 
-    private material = new Three.MeshBasicMaterial({side: Three.FrontSide, color: 0xaaaaaa, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
+    private blackMaterial = new Three.MeshBasicMaterial({side: Three.FrontSide, color: 0xaaaaaa, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
+    private gradientMaterial! : Three.Material;
+    private terrainMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.6});
     light = new Three.AmbientLight(new Three.Color(0xffffff), 0.75);
 
     pointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 1000, 2);
     otherPointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 600, 2);
-
-    mat = new Three.ShaderMaterial({
-        uniforms: {
-          color1: {
-            value: new Three.Color(0x261a46)
-          },
-          color2: {
-            value: new Three.Color(0x1d0c22)
-            
-          }
-        },
-        vertexShader: `
-          varying vec2 vUv;
-      
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform vec3 color1;
-          uniform vec3 color2;
-        
-          varying vec2 vUv;
-          
-          void main() {
-            
-            gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
-          }
-        `
-      });
-
 
     constructor(weatherData?: WeatherData){
 
@@ -59,6 +31,8 @@ class WeatherScene{
 
         const bg = new Three.TextureLoader().load("assets/vaporwaveSky.png");
         this.scene.background = bg;
+
+        this.gradientMaterial = new Three.ShaderMaterial( CreateGradientShader(new Three.Color(0xff1572), new Three.Color(0xe92908)) );
 
         this.pointLight.position.set(-250, 100, 0);
         this.otherPointLight.position.set(-250, 100, 0);
@@ -103,9 +77,7 @@ class WeatherScene{
             strength = 0.8;
         }
         
-        let sunMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.6});
-
-        let sun = new Sun(100, 350, sunRays, strength, sunMaterial, this.scene);
+        let sun = new Sun(100, 350, sunRays, strength, this.gradientMaterial, this.scene);
         this.animatables.push(sun);
 
         if(weatherData.condition == "Partly Cloudy"){
@@ -117,7 +89,7 @@ class WeatherScene{
         
 
         let heightmap = this.generateHeightmap(64, 64);
-        let terrain = new Terrain(64, 64, sunMaterial, heightmap);
+        let terrain = new Terrain(64, 64, this.terrainMaterial, heightmap);
 
         this.scene.add(terrain.mesh);
 
@@ -145,7 +117,7 @@ class WeatherScene{
                     let randomXOffset = (Math.random() * 4) - 2;
                     let randomZOffset = (Math.random() * 4) - 2;
 
-                    let cloud = new Cloud(5, this.material, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
+                    let cloud = new Cloud(5, this.blackMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
                     this.animatables.push(cloud);
                 }
             }

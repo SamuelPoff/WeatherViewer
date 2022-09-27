@@ -15,11 +15,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import { timestamp } from 'rxjs';
 import { MathUtils, Vector2 } from 'three';
 
-import Sun from "../objects/Sun";
-import Cloud from '../objects/Cloud';
-import Wireframe from "../objects/Wireframe";
 import WeatherData from "../objects/WeatherData";
-import Terrain from "../objects/Terrain";
 
 import WeatherScene from "../objects/WeatherScene";
 
@@ -55,18 +51,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return this.canvasRef.nativeElement;
   }
 
-  private textureLoader = new Three.TextureLoader();
-
   private renderer!: Three.WebGLRenderer;
 
   private totalElapsedTime: number = 0;
   private deltaTime: number = 0;
+  private lastTime?: DOMHighResTimeStamp;
 
   private weatherScene = new WeatherScene();
 
-  private lastTime?: DOMHighResTimeStamp;
-
   effectComposer?: EffectComposer;
+
+  private gradientMaterial!: Three.Material;
 
   currentWeatherData: any;
   weatherHistoryData: any[] = [];
@@ -80,7 +75,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   options: Options = new Options({types: ['locality']});
   unit: string = "c";
 
-  constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { }
+  constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { 
+
+  }
 
   @HostListener('window:resize')
   onResize() {
@@ -97,8 +94,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
 
     this.getUserLocation();
-
-    
 
   }
 
