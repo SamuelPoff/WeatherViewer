@@ -1,5 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 
+@font-face{
+    font-family: "Abduction";
+    src: local("Abduction"), url(./assets/fonts/abduction2002.ttf) format("truetype");
+}
+
+h1{
+    margin: 0;
+    padding: 0;
+}
+
+h3{
+    margin: 0;
+    padding: 0.5em;
+}
+
+p{
+    padding: 0;
+    margin: 0;
+}
+
+
 body{
     margin: 0;
     padding: 0;
@@ -27,7 +48,7 @@ body{
     flex-direction: column;
 
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 
     position: relative;
 
@@ -45,11 +66,15 @@ body{
 
 }
 
+#unit-options{
+    padding: 1.0em;
+}
+
 .weather{
 
     display: flex;
 
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: space-between;
 
@@ -63,10 +88,20 @@ body{
     width: 100%;
     position: relative;
 
+    min-height: 800px;
+    padding-top: 5em;
+    padding-bottom: 5em;
+
+
+    font-family: "Abduction";
+
 }
 
-$bg-color: rgba(0,0,0,0.7);
-$wireframe-color: rgba(255,255,255,0.7);
+$bg-color: rgba(0,0,0,0.5);
+$wireframe-color: rgba(255,255,255,0.6);
+
+$bg-color-hover: rgba(0,0,0,0.75);
+$wireframe-color-hover: rgba(255, 255, 255, 0.9);
 
 .weather-details{
 
@@ -74,8 +109,8 @@ $wireframe-color: rgba(255,255,255,0.7);
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+
+    padding: 2em;
 
 }
 
@@ -84,46 +119,88 @@ $wireframe-color: rgba(255,255,255,0.7);
     color: $wireframe-color;
     min-width: 200px;
 
-    margin: 0;
-    padding: 0.5em;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-
-    background-color: $bg-color;
-
-    transition: background-color 0.5s
-
-}
-
-.weather-header{
-
-    line-height: 10%;
-
+    margin: 1em;
     padding: 0.25em;
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 
-    border-bottom: 1px solid rgba(1,1,1,0.4);
+    border: 1px solid $wireframe-color;
+
+    background-color: $bg-color;
+
+    transition: all 0.5s;
+
+}
+
+.weather-container:hover{
+    background-color: $bg-color-hover;
+    border: 1px solid $wireframe-color-hover;
+
+    color: $wireframe-color-hover;
+}
+
+.weather-header{
+
+    display: flex;
+    flex-direction: column;
+
+    padding-left: 3em;
+    padding-right: 3em;
+
+}
+
+.weather-data-container{
+
+    padding: 3em;
 
 }
 
 .weather-additional-info{
 
-    padding: 0.25em;
+    padding-left: 2em;
+    padding-right: 2em;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 
+}
+
+.weather-statistic{
+
+    font-weight: bold;
+    font-size: 20px;
+
+    padding: 0.25em;
+
+}
+
+.flex-row{
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column{
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center{
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-baseline{
+    align-items: baseline;
+    justify-content: space-between;
 }
 
 .italics{
     font-style: italic;
+}
+
+.bottom-border{
+    border-bottom: 1px solid $wireframe-color;
 }

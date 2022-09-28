@@ -3,33 +3,32 @@
 <h1>WeatherViewer Dashboard</h1>
 
 <div class="container">
-    <input id="location-input" ngx-google-places-autocomplete #location [options]="options" (onAddressChange)="addressChange($event, units.value)" />
-    <div id="radio-container">
+    <input id="location-input" ngx-google-places-autocomplete #location [options]="options" (onAddressChange)="addressChange($event)" />
+    <div id="unit-options">
         <input type="radio" checked name="units" value="c" (change)="OnTemperatureUnitChange('c')"/>C
         <input type="radio" name="units" value="f" (change)="OnTemperatureUnitChange('f')"/>F
     </div>
 </div>
 
-<label for="temperature-unit">Unit of Temperature</label>
-<select #units name="Temperature Unit" id="temperature-unit" (change)="onUnitChange(units.value)">
-    <option value="c">Celsius</option>
-    <option value="f">Fahrenheit</option>
-</select>
-
 <!-- Reminder that WeatherApi defines the data type 'Forecast' to represent both weather history and literal weather forecasts (kinda confusing on the surface) -->
 <div class="weather">
 
+    <!--
     <div>
         <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
         <button type="button" (click)="changeWeather('Partly Cloudy')">[TEST] Partly Cloudy</button>
         <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>
         <button type="button">[TEST] Light Rain</button>
     </div>
-    
+    -->
 
-    <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData" [unit]="unit"></app-weather-data-details>
+    <div class="flex-row flex-center">
+        <app-current-weather-view *ngIf="currentWeatherData" [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
+    </div>
 
-    <app-current-weather-view *ngIf="currentWeatherData" [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>
+    <div class="flex-row flex-center">
+        <app-weather-data-details *ngFor="let historyData of weatherHistoryData" [forecastData]="historyData" [unit]="unit"></app-weather-data-details>
+        <app-weather-data-details *ngFor="let forecastData of weatherForecastData" [forecastData]="forecastData" [unit]="unit"></app-weather-data-details>
+    </div>
 
-    <app-weather-data-details *ngFor="let forecastData of weatherForecastData" [forecastData]="forecastData" [unit]="unit"></app-weather-data-details>
 </div>

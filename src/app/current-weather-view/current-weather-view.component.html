@@ -1,21 +1,28 @@
 
 <div class="weather-details">
 
-    <h1>Current</h1>
+    <div class="weather-container flex-baseline">
 
-    <div class="weather-container">
-
-        <div class="weather-header">
-            <p>Temperature: {{temperature}} </p>
-            <p>Last updated at: {{weatherData.last_updated}}</p>
-            <p>Feels Like: {{feelslike}}</p>
-            <p class="italic">{{weatherData.condition.text}}</p>
+        <div class="flex-row flex-baseline bottom-border" style="width: 100%;">
+            <h1>Today</h1>
+            <p>&nbsp;:{{weatherData.last_updated}}</p>
         </div>
 
-        <div class="weather-additional-info">
-        <p>Wind Speed: {{weatherData.wind_mph}}</p>
-        <p>Precipitation: {{weatherData.precip_mm}}</p>
-        <p>UV Index: {{weatherData.uv}}</p>
+        <div class="weather-data-container flex-row">
+            <div class="weather-header">
+<pre style="white-space: pre-wrap; font-family: 'Abduction'"> `  \  _  /  `
+    .     .    
+-~-(       )-~-
+    .     .    
+  `  / - \  `</pre>
+            </div>
+
+            <div class="weather-additional-info">
+                <p class="italics weather-statistic">{{weatherData.condition.text}}</p>
+                <p class="weather-statistic">{{temperature}} &deg;{{unit}}</p>
+                <p class="weather-statistic">{{weatherData.wind_mph}} MPH</p>
+                <p class="weather-statistic">{{weatherData.precip_mm}}mm  |  {{weatherData.humidity}}%</p>
+            </div>
         </div>
 
     </div>

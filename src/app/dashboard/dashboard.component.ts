@@ -94,6 +94,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
 
     this.getUserLocation();
+    this.changeWeather("Sunny");
 
   }
 
@@ -285,7 +286,7 @@ Math.pow
 
   }
 
-  addressChange(address: Address, units: string){
+  addressChange(address: Address){
     
     this.thelocation = address.formatted_address;
     this.getAllWeather(this.thelocation);
