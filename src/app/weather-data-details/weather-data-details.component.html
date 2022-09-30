@@ -1,20 +1,26 @@
 
 <div class="weather-details">
 
-    <h1>Date {{forecastData.date}}</h1>
+    <div class="weather-container flex-baseline">
 
-    <div class="weather-container">
-        <div class="weather-header">
-            <p>Max Temperature {{max_temperature}}</p>
-            <p>Min Temperature {{min_temperature}}</p>
-            <p class="italics">{{forecastData.day.condition.text}}</p>
+        <div class="flex-row flex-baseline bottom-border" style="width: 100%;">
+            <h1>DOW</h1>
+            <p>&nbsp;:{{forecastData.date}}</p>
         </div>
-        
-        <div class="weather-additional-info">
-            <p>Average Temperature {{avg_temperature}}</p>
-            <p>Total Precipitation {{forecastData.day.totalprecip_mm}}</p>
-            <p>Average Humidity {{forecastData.day.avghumidity}}</p>
-            <p>UV Index {{forecastData.day.uv}}</p>
+
+        <div class="weather-data-container flex-row">
+            <div class="weather-header">
+<pre style="white-space: pre-wrap; font-family: 'Abduction'">{{weatherSymbols.cloudy}}</pre>
+            </div>
+
+            <div class="weather-additional-info">
+                <p class="italics weather-statistic">{{forecastData.day.condition.text}}</p>
+                <p class="weather-statistic">{{min_temperature}}...{{max_temperature}}&deg;{{unit}}</p>
+                <p class="weather-statistic">{{forecastData.day.maxwind_mph}} MPH</p>
+                <p class="weather-statistic">{{forecastData.day.totalprecip_mm}}mm  |  {{forecastData.day.avghumidity}}%</p>
+            </div>
         </div>
+
     </div>
+
 </div>

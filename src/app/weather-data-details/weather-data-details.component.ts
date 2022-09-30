@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 
+import {WeatherSymbols} from "../objects/ASCIISymbols";
+
 @Component({
   selector: 'app-weather-data-details',
   templateUrl: './weather-data-details.component.html',
@@ -10,6 +12,8 @@ export class WeatherDataDetailsComponent implements OnInit {
   //An individual "forecastday" object from weatherAPI
   @Input() forecastData: any;
   @Input() unit: string = "c";
+
+  weatherSymbols = WeatherSymbols;
 
   max_temperature: number = 0;
   min_temperature: number = 0;

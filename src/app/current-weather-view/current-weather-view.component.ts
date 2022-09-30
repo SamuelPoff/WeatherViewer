@@ -1,5 +1,7 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 
+import {WeatherSymbols} from "../objects/ASCIISymbols";
+
 @Component({
   selector: 'app-current-weather-view',
   templateUrl: './current-weather-view.component.html',
@@ -14,6 +16,8 @@ export class CurrentWeatherViewComponent implements OnInit, OnChanges {
 
   temperature: number = 0;
   feelslike: number = 0;
+
+  weatherSymbols = WeatherSymbols
 
   ngOnInit(): void {
     
