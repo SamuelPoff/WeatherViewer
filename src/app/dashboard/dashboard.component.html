@@ -13,14 +13,12 @@
 <!-- Reminder that WeatherApi defines the data type 'Forecast' to represent both weather history and literal weather forecasts (kinda confusing on the surface) -->
 <div class="weather">
 
-    <!--
     <div>
         <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
         <button type="button" (click)="changeWeather('Partly Cloudy')">[TEST] Partly Cloudy</button>
         <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>
         <button type="button">[TEST] Light Rain</button>
     </div>
-    -->
 
     <div class="flex-row flex-center">
         <app-current-weather-view *ngIf="currentWeatherData" [weatherData]="currentWeatherData" [unit]="unit"></app-current-weather-view>

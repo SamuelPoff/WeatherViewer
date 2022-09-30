@@ -17,13 +17,14 @@ class WeatherScene{
     private scene: Three.Scene;
     private animatables: Array<Animatable> = [];
 
-    private blackMaterial = new Three.MeshBasicMaterial({side: Three.FrontSide, color: 0xaaaaaa, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1});
     private gradientMaterial! : Three.Material;
     private terrainMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.6});
     light = new Three.AmbientLight(new Three.Color(0xffffff), 0.75);
 
     pointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 1000, 2);
     otherPointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 600, 2);
+
+    terrainHeightmap: number[] = [];
 
     constructor(weatherData?: WeatherData){
 
@@ -36,6 +37,11 @@ class WeatherScene{
 
         this.pointLight.position.set(-250, 100, 0);
         this.otherPointLight.position.set(-250, 100, 0);
+
+        if(this.terrainHeightmap.length <= 0){
+            this.terrainHeightmap = this.generateHeightmap(64, 64);
+        }
+        
 
         //Construct scene based on data from weatherData
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
@@ -57,7 +63,7 @@ class WeatherScene{
         return this.scene;
     }
 
-    //Note: Find out if this also cleans up memory allocated for those objects geometry and materials
+    //Note: Not dropping instances anymore to get garbage collected
     Clear(){
         this.scene.clear();
         this.animatables = new Array<Animatable>();
@@ -81,15 +87,13 @@ class WeatherScene{
         this.animatables.push(sun);
 
         if(weatherData.condition == "Partly Cloudy"){
-            this.generateCloudCover(0.25, false, 6, 20, 24);
+            this.generateCloudCover(0.25, false, 6, 20, 24, 5, 2);
         }
         else if(weatherData.condition == "Overcast"){
-            this.generateCloudCover(1, true, 10, 20, 22);
+            this.generateCloudCover(1, false, 10, 20, 22, 8, 2);
         }
         
-
-        let heightmap = this.generateHeightmap(64, 64);
-        let terrain = new Terrain(64, 64, this.terrainMaterial, heightmap);
+        let terrain = new Terrain(64, 64, this.terrainMaterial, this.terrainHeightmap);
 
         this.scene.add(terrain.mesh);
 
@@ -101,10 +105,9 @@ class WeatherScene{
 
     //Generate cloud cover for the given parameters and automatically add them to the scene
     //Density: 0-1
-    generateCloudCover(density: number, raining: boolean, width: number, height: number, spacing: number){
+    generateCloudCover(density: number, raining: boolean, width: number, height: number, spacing: number, heightVariance: number, scaleVariance: number){
 
         let cloudBaseHeight = 85;
-        let cloudHeightVar = 5;
 
         let halfWidth = width/2;
         let halfHeight = height/2;
@@ -113,11 +116,13 @@ class WeatherScene{
             for(let z = -halfHeight; z < halfHeight; z++){
 
                 if(Math.random() >= 1-density){
-                    let randomHeightOffset = ((Math.random() * 2) - 1) * cloudHeightVar;
+                    let randomHeightOffset = ((Math.random() * 2) - 1) * heightVariance;
                     let randomXOffset = (Math.random() * 4) - 2;
                     let randomZOffset = (Math.random() * 4) - 2;
 
-                    let cloud = new Cloud(5, this.blackMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
+                    let randomScaleVariance = (Math.random() * scaleVariance * 2) - scaleVariance;
+
+                    let cloud = new Cloud(5, randomScaleVariance, this.gradientMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
                     this.animatables.push(cloud);
                 }
             }

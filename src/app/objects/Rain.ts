@@ -8,7 +8,7 @@ import { Vector3 } from "three";
 
 class Rain implements Animatable{
 
-    static baseHeight: number = 5;
+    static baseHeight: number = 10;
     static baseRadius: number = 0.1;
     static radialSegments: number = 5;
     static baseScale: number = 1;

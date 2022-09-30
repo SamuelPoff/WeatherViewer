@@ -32,7 +32,7 @@ class Sun implements Animatable{
         //Gonna keep all angles in RADIANS just so I dont forget to convert and then wonder why everything looks random and wrong
         let angleIncrement = (Math.PI*2) / numSunRays;
 
-        let sunRayBaseRadius = 3;
+        let sunRayBaseRadius = 4;
         let sunRayBaseHeight = 50;
         for(let i = 0; i < numSunRays; i++){
 

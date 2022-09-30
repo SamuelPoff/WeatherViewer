@@ -22,7 +22,7 @@ class Cloud implements Animatable{
     animationOffset: number = 0;
     timer: number = 0;
 
-    constructor(radius: number, material: Three.MeshBasicMaterial, scene: Three.Scene, raining: boolean, startingPosition? : Three.Vector3, animationOffset?: number){
+    constructor(radius: number, scaleOffset: number, material: Three.Material, scene: Three.Scene, raining: boolean, startingPosition? : Three.Vector3, animationOffset?: number){
 
         this.material = material;
         let geometry = new Three.TetrahedronGeometry(radius,2);
@@ -40,9 +40,9 @@ class Cloud implements Animatable{
         this.baseScale.z += ((Math.random() * 3) - 1.5);
 
         this.mesh = new Three.Mesh(geometry, material);
-        this.mesh.scale.x = this.baseScale.x;
-        this.mesh.scale.y = this.baseScale.y;
-        this.mesh.scale.z = this.baseScale.z;
+        this.mesh.scale.x = this.baseScale.x + scaleOffset;
+        this.mesh.scale.y = this.baseScale.y + scaleOffset/3;
+        this.mesh.scale.z = this.baseScale.z + scaleOffset;
 
         //this.mesh.position.y = 25;
         if(startingPosition){

@@ -3,7 +3,6 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 
 import {WeatherService} from "../weather.service";
 import { PlacesAutocompleteService } from '../places-autocomplete.service';
-import { enableDebugTools } from '@angular/platform-browser';
 
 import {CurrentWeatherData} from "../interfaces/CurrentWeatherData";
 
@@ -11,7 +10,6 @@ import { Options } from "ngx-google-places-autocomplete/objects/options/options"
 import { Address } from 'ngx-google-places-autocomplete/objects/address';
 
 import * as Three from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import { timestamp } from 'rxjs';
 import { MathUtils, Vector2 } from 'three';
 
@@ -60,8 +58,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private weatherScene = new WeatherScene();
 
   effectComposer?: EffectComposer;
-
-  private gradientMaterial!: Three.Material;
 
   currentWeatherData: any;
   weatherHistoryData: any[] = [];
@@ -120,9 +116,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.renderer = new Three.WebGLRenderer({canvas: this.canvas});
     this.renderer.setPixelRatio(devicePixelRatio);
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
-
-    //Instaniate orbit controls
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     //Instaniate and setup effect composer
     this.effectComposer = new EffectComposer(this.renderer);
