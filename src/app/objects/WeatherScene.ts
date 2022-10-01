@@ -10,6 +10,9 @@ import Animatable from "../interfaces/Animatable";
 
 import {CreateGradientShader} from "./Shaders";
 
+import ObjectPool from "./ObjectPool";
+import { Vector3 } from "three";
+
 //Encapsulate three js scene handling into one spot
 //Handle the composition of the scene based on weather information
 class WeatherScene{
@@ -25,6 +28,8 @@ class WeatherScene{
     otherPointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 600, 2);
 
     terrainHeightmap: number[] = [];
+
+    private cloudObjectPool = new ObjectPool<Cloud>(256);
 
     constructor(weatherData?: WeatherData){
 
@@ -42,6 +47,10 @@ class WeatherScene{
             this.terrainHeightmap = this.generateHeightmap(64, 64);
         }
         
+        //Setup cloudObjectPool
+        for(let i = 0; i < this.cloudObjectPool.GetMaxInstances(); ++i){
+            this.cloudObjectPool.Fill(new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, -30, 0), Math.random()));
+        }
 
         //Construct scene based on data from weatherData
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
@@ -87,10 +96,10 @@ class WeatherScene{
         this.animatables.push(sun);
 
         if(weatherData.condition == "Partly Cloudy"){
-            this.generateCloudCover(0.25, false, 6, 20, 24, 5, 2);
+            this.generateCloudCover(0.25, false, 6, 18, 24, 5, 2);
         }
         else if(weatherData.condition == "Overcast"){
-            this.generateCloudCover(1, false, 10, 20, 22, 8, 2);
+            this.generateCloudCover(0.75, false, 10, 18, 22, 8, 2);
         }
         
         let terrain = new Terrain(64, 64, this.terrainMaterial, this.terrainHeightmap);
@@ -122,6 +131,8 @@ class WeatherScene{
 
                     let randomScaleVariance = (Math.random() * scaleVariance * 2) - scaleVariance;
 
+                    //Proposed usage of the objectPool
+                    //let cloud = this.cloudObjectPool.Get( (instance: Cloud)=>{} ); 
                     let cloud = new Cloud(5, randomScaleVariance, this.gradientMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
                     this.animatables.push(cloud);
                 }

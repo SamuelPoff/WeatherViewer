@@ -27,7 +27,8 @@ class ObjectPool<T>{
 
     //Gets a currently available instance of T and does bookeeping on state data
     //If none are free, returns null
-    Get(): T | null{
+    //Optional callback function can set up the state of the returned instance
+    Get(callback?: (instance: T) => void): T | null{
 
         if(this.indexStack.length <= 0){
             return null;
@@ -36,7 +37,13 @@ class ObjectPool<T>{
         let index = this.GetNextIndex();
         this.instanceState[index] = true;
 
-        return this.instancePool[index];
+        let inst = this.instancePool[index];
+        if(callback){
+            callback(inst);
+        }
+        
+
+        return inst;
 
     }
 
@@ -76,4 +83,10 @@ class ObjectPool<T>{
 
     }
 
+    GetMaxInstances(): number{
+        return this.maxInstances;
+    }
+
 }
+
+export default ObjectPool;
