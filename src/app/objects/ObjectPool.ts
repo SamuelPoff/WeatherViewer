@@ -87,6 +87,10 @@ class ObjectPool<T>{
         return this.maxInstances;
     }
 
+    GetInstancePool(): T[] {
+        return this.instancePool;
+    }
+
 }
 
 export default ObjectPool;

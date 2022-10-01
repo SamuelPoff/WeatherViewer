@@ -201,6 +201,10 @@ Math.pow
 
   }
 
+  clearWeatherScene(){
+    this.weatherScene.Clear();
+  }
+
 
   /* Gather all weather information for current, past and future weather to display */
   getAllWeather(location: string){

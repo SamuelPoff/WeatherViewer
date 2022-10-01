@@ -8,6 +8,7 @@ import Animatable from "../interfaces/Animatable";
 
 class Cloud implements Animatable{
 
+    enabled: boolean = true;
     baseScale: Three.Vector3 = new Three.Vector3(3,1,3);
 
     mesh: Three.Mesh;

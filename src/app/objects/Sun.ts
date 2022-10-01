@@ -7,6 +7,7 @@ import Animatable from "../interfaces/Animatable";
 
 class Sun implements Animatable{
 
+    enabled: boolean = true;
     mesh: Three.Mesh;
     //wireframe: Wireframe;
 
@@ -16,7 +17,7 @@ class Sun implements Animatable{
     private sunRotationSpeed = 0.005;
     private sunRayRotationSpeed = 0.001;
 
-    private strength = 1;
+    strength = 1;
 
     constructor(radius: number, xOffset:number, numSunRays: number, strength: number, material: Three.Material, scene: Three.Scene){
 
@@ -52,7 +53,7 @@ class Sun implements Animatable{
 
         this.mesh.rotation.y += this.sunRotationSpeed;
         let frequency = 0.003;
-        let amplitude = 0.3;
+        let amplitude = 0.1;
 
         for(let i = 0; i < this.sunRays.length; i++){
 

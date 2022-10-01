@@ -22,14 +22,15 @@ class WeatherScene{
 
     private gradientMaterial! : Three.Material;
     private terrainMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.6});
+    
     light = new Three.AmbientLight(new Three.Color(0xffffff), 0.75);
-
     pointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 1000, 2);
     otherPointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 600, 2);
 
-    terrainHeightmap: number[] = [];
+    sun!: Sun;
+    terrain!: Terrain;
 
-    private cloudObjectPool = new ObjectPool<Cloud>(256);
+    private cloudObjectPool = new ObjectPool<Cloud>(300);
 
     constructor(weatherData?: WeatherData){
 
@@ -40,17 +41,33 @@ class WeatherScene{
 
         this.gradientMaterial = new Three.ShaderMaterial( CreateGradientShader(new Three.Color(0xff1572), new Three.Color(0xe92908)) );
 
-        this.pointLight.position.set(-250, 100, 0);
-        this.otherPointLight.position.set(-250, 100, 0);
 
-        if(this.terrainHeightmap.length <= 0){
-            this.terrainHeightmap = this.generateHeightmap(64, 64);
-        }
+        //Setup Terrain
+        let heightmap = this.generateHeightmap(64,64);
+        this.terrain = new Terrain(64, 64, this.terrainMaterial, heightmap);
+        this.scene.add(this.terrain.mesh);
+
+        //Setup Sun
+        this.sun = new Sun(100, 350, 0, 1, this.gradientMaterial, this.scene);
+        this.sun.enabled = false;
+        this.animatables.push(this.sun);
         
         //Setup cloudObjectPool
         for(let i = 0; i < this.cloudObjectPool.GetMaxInstances(); ++i){
-            this.cloudObjectPool.Fill(new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, -30, 0), Math.random()));
+            let inst = new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random());
+            inst.mesh.visible = false;
+            inst.enabled = false;
+            this.animatables.push(inst);
+            this.cloudObjectPool.Fill(inst);
         }
+
+        //Setup Lights
+        this.pointLight.position.set(-250, 100, 0);
+        this.otherPointLight.position.set(-250, 100, 0);
+
+        this.scene.add(this.light);
+        this.scene.add(this.pointLight);
+        this.scene.add(this.otherPointLight);
 
         //Construct scene based on data from weatherData
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
@@ -63,7 +80,9 @@ class WeatherScene{
     Animate(totalElapsedTime: number, deltaTime: number){
         this.animatables.forEach((animatable) => {
 
-            animatable.Animate(totalElapsedTime, deltaTime);
+            if(animatable.enabled){
+                animatable.Animate(totalElapsedTime, deltaTime);
+            }
 
         });
     }
@@ -72,15 +91,22 @@ class WeatherScene{
         return this.scene;
     }
 
-    //Note: Not dropping instances anymore to get garbage collected
+    //Clear the scene visually but without actually removing any children.
     Clear(){
-        this.scene.clear();
-        this.animatables = new Array<Animatable>();
+
+        this.scene.children.forEach( (child)=>{
+            child.visible = false;
+        } );
+
+        this.ReturnClouds();
+        
+
     }
 
     //Construct the current scene based on the weather data passed in.
     ConstructScene(weatherData: WeatherData){
 
+        //Setup Sun
         let sunRays = 0;
         let strength = 1;
         if(weatherData.condition == "Sunny"){
@@ -91,24 +117,28 @@ class WeatherScene{
             sunRays = 16;
             strength = 0.8;
         }
-        
-        let sun = new Sun(100, 350, sunRays, strength, this.gradientMaterial, this.scene);
-        this.animatables.push(sun);
 
+        this.sun.strength = strength;
+        //enabled the proper number of sun rays here*******
+
+        this.sun.enabled = true;
+        this.sun.mesh.visible = true;
+        
+        //Enable terrain
+        this.terrain.mesh.visible = true;
+
+        //Setup Clouds
         if(weatherData.condition == "Partly Cloudy"){
             this.generateCloudCover(0.25, false, 6, 18, 24, 5, 2);
         }
         else if(weatherData.condition == "Overcast"){
-            this.generateCloudCover(0.75, false, 10, 18, 22, 8, 2);
+            this.generateCloudCover(0.85, false, 10, 18, 22, 8, 2);
         }
-        
-        let terrain = new Terrain(64, 64, this.terrainMaterial, this.terrainHeightmap);
 
-        this.scene.add(terrain.mesh);
-
-        this.scene.add(this.light);
-        this.scene.add(this.pointLight);
-        this.scene.add(this.otherPointLight);
+        //Enable lights
+        this.pointLight.visible = true;
+        this.otherPointLight.visible = true;
+        this.light.visible = true;
 
     }
 
@@ -132,11 +162,28 @@ class WeatherScene{
                     let randomScaleVariance = (Math.random() * scaleVariance * 2) - scaleVariance;
 
                     //Proposed usage of the objectPool
-                    //let cloud = this.cloudObjectPool.Get( (instance: Cloud)=>{} ); 
-                    let cloud = new Cloud(5, randomScaleVariance, this.gradientMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
-                    this.animatables.push(cloud);
+                    let cloud = this.cloudObjectPool.Get( (instance: Cloud)=>{
+                        instance.enabled = true;
+                        instance.mesh.position.set(x * spacing + randomXOffset, cloudBaseHeight+randomHeightOffset, z * spacing + randomZOffset);
+                        instance.mesh.scale.set(instance.baseScale.x + randomScaleVariance, instance.baseScale.y + randomScaleVariance/3, instance.baseScale.z + randomScaleVariance);
+                        instance.mesh.visible = true;
+                    } ); 
+                    //let cloud = new Cloud(5, randomScaleVariance, this.gradientMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
                 }
             }
+        }
+
+    }
+
+
+    //Return all clouds as available to the objectPool and disable animation for them since they will stay in animatables
+    ReturnClouds(){
+
+        let instancePool = this.cloudObjectPool.GetInstancePool();
+
+        for(let i = 0; i < instancePool.length; ++i){
+            this.cloudObjectPool.Return(i);
+            instancePool[i].enabled = false;
         }
 
     }
