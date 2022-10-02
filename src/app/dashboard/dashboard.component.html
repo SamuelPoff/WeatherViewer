@@ -14,6 +14,8 @@
 <div class="weather">
 
     <div>
+        <p>Cloud Pool Count: {{weatherScene.cloudObjectPool.GetInstancePool().length}}</p>
+
         <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
         <button type="button" (click)="changeWeather('Partly Cloudy')">[TEST] Partly Cloudy</button>
         <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>

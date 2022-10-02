@@ -55,7 +55,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private deltaTime: number = 0;
   private lastTime?: DOMHighResTimeStamp;
 
-  private weatherScene = new WeatherScene();
+  weatherScene = new WeatherScene();
 
   effectComposer?: EffectComposer;
 

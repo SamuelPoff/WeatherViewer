@@ -30,7 +30,7 @@ class WeatherScene{
     sun!: Sun;
     terrain!: Terrain;
 
-    private cloudObjectPool = new ObjectPool<Cloud>(300);
+    cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
 
     constructor(weatherData?: WeatherData){
 
@@ -52,6 +52,7 @@ class WeatherScene{
         this.sun.enabled = false;
         this.animatables.push(this.sun);
         
+        /*
         //Setup cloudObjectPool
         for(let i = 0; i < this.cloudObjectPool.GetMaxInstances(); ++i){
             let inst = new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random());
@@ -60,6 +61,7 @@ class WeatherScene{
             this.animatables.push(inst);
             this.cloudObjectPool.Fill(inst);
         }
+        */
 
         //Setup Lights
         this.pointLight.position.set(-250, 100, 0);
@@ -168,7 +170,13 @@ class WeatherScene{
                         instance.mesh.scale.set(instance.baseScale.x + randomScaleVariance, instance.baseScale.y + randomScaleVariance/3, instance.baseScale.z + randomScaleVariance);
                         instance.mesh.visible = true;
                     } ); 
-                    //let cloud = new Cloud(5, randomScaleVariance, this.gradientMaterial, this.scene, raining, new Three.Vector3(x * spacing + randomXOffset, cloudBaseHeight + randomHeightOffset, z * spacing + randomZOffset), (Math.random() * 2) -1 );
+
+                    if(cloud){
+                        cloud.enabled = true;
+                        cloud.mesh.visible = true;
+
+                        this.animatables.push(cloud);
+                    }
                 }
             }
         }
@@ -184,6 +192,10 @@ class WeatherScene{
         for(let i = 0; i < instancePool.length; ++i){
             this.cloudObjectPool.Return(i);
             instancePool[i].enabled = false;
+
+            this.animatables = this.animatables.filter((value)=>{
+                return !(value instanceof Cloud);
+            });
         }
 
     }

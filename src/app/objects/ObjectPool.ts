@@ -3,14 +3,19 @@
 //Sends back an instance of the type given but recycles already destroyed instances
 class ObjectPool<T>{
 
+    //User defined callback that returns a new instance of T, since this object has no clue how T needs to be defined
+    //Or if it has an empty constructor to use as a baseline.
+    private instanceCreationCallback: ()=>T;
+
     private instancePool: T[] = [];
     private instanceState: boolean[] = [];
 
     private maxInstances: number = 32;
     private indexStack: number[] = [];
 
-    constructor(maxInstances: number){
+    constructor(maxInstances: number, creationCallback: ()=>T){
         this.maxInstances = maxInstances;
+        this.instanceCreationCallback = creationCallback;
     }
 
     //Adds the given object to the instance pool
@@ -30,10 +35,30 @@ class ObjectPool<T>{
     //Optional callback function can set up the state of the returned instance
     Get(callback?: (instance: T) => void): T | null{
 
+        //There are no available instances so create a new one if maxInstances hasnt been reached
         if(this.indexStack.length <= 0){
-            return null;
+
+            if(this.indexStack.length >= this.maxInstances){
+                console.log(`Attempted to get instance from ObjectPool but it has reached its maximum instance count`);
+                return null;
+            }
+
+            const inst = this.instanceCreationCallback();
+            this.instancePool.push(inst);
+            this.instanceState.push(true);
+
+            if(callback){
+                //Note: Potentially inefficient since this callback could likely just reset data that the object already sets in its constructor
+                //meaning this would just be wasted time. Although the user could just account for this by not passing in this callback as long
+                //as I added a required instanceCreationCallback to this method. Ill just wait on that and leave this here for if I feel like it
+                callback(inst);
+            }
+
+            return inst;
+
         }
 
+        //Grab the first available instance based on the indexStack
         let index = this.GetNextIndex();
         this.instanceState[index] = true;
 
