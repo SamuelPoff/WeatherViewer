@@ -126,7 +126,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const bloomPass = new BloomPass(1.2);
     this.effectComposer.addPass(bloomPass);
 
-    const filmPass = new FilmPass(0.3, 0.3, 500, 0);
+    const filmPass = new FilmPass(0.3, 0.2, 300, 0);
     this.effectComposer.addPass(filmPass);
 
     this.camera.rotation.x = -1.55;
@@ -165,25 +165,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
-  generateHeightmap(worldWidth: number, worldHeight: number): number[]{
-
-    let height: number[] = new Array<number>(worldWidth * worldHeight);
-
-    for(let x = 0; x < worldWidth; x++){
-      for(let y = 0; y < worldHeight; y++){
-
-        let center = new Vector2(worldWidth/2, worldHeight/2);
-        let distance = new Vector2(x,y).distanceTo(center);
-
-        height[x + (worldWidth * y)] = Math.random() * 5 + ( Math.abs(Math.pow(y - (worldWidth/2), 2) * 0.04) );
-Math.pow
-      }
-    }
-
-    return height;
-
-  }
-
 
   ngAfterViewInit(): void{
     this.createScene();
@@ -191,7 +172,19 @@ Math.pow
   }
 
 
+  onMouseOver(event: any){
+
+    if(event.target.dataset.condition){
+      console.log(event.target.dataset.condition);
+      this.changeWeather(event.target.dataset.condition);
+    }
+
+  }
+
+
   changeWeather(weatherDescription: string){
+
+    console.log("Called change weather: " + weatherDescription);
 
     let weatherData = new WeatherData();
     weatherData.condition = weatherDescription;
@@ -236,7 +229,7 @@ Math.pow
   /* Get weather history data across the past 7 days */
   getWeatherHistory(location: string){
 
-    let dateTime:string = "2022-08-22";
+    let dateTime:string = "2022-10-4";
 
     this.weatherService.getHistoricalWeather(location, dateTime).subscribe((res:any )=>{
 
@@ -258,8 +251,6 @@ Math.pow
   }
 
   getUserLocation(){
-
-    console.log("Get User Location");
 
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition((position: any)=>{

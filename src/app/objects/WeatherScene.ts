@@ -51,17 +51,6 @@ class WeatherScene{
         this.sun = new Sun(100, 350, 0, 1, this.gradientMaterial, this.scene);
         this.sun.enabled = false;
         this.animatables.push(this.sun);
-        
-        /*
-        //Setup cloudObjectPool
-        for(let i = 0; i < this.cloudObjectPool.GetMaxInstances(); ++i){
-            let inst = new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random());
-            inst.mesh.visible = false;
-            inst.enabled = false;
-            this.animatables.push(inst);
-            this.cloudObjectPool.Fill(inst);
-        }
-        */
 
         //Setup Lights
         this.pointLight.position.set(-250, 100, 0);
@@ -108,6 +97,8 @@ class WeatherScene{
     //Construct the current scene based on the weather data passed in.
     ConstructScene(weatherData: WeatherData){
 
+        console.log("WeatherScene: Constructing scene from: " + weatherData.condition);
+
         //Setup Sun
         let sunRays = 0;
         let strength = 1;
@@ -115,7 +106,7 @@ class WeatherScene{
             sunRays = 18;
             strength = 1.4;
         }
-        else if(weatherData.condition == "Partly Cloudy"){
+        else if(weatherData.condition == "Partly cloudy"){
             sunRays = 16;
             strength = 0.8;
         }
@@ -130,7 +121,7 @@ class WeatherScene{
         this.terrain.mesh.visible = true;
 
         //Setup Clouds
-        if(weatherData.condition == "Partly Cloudy"){
+        if(weatherData.condition == "Partly cloudy"){
             this.generateCloudCover(0.25, false, 6, 18, 24, 5, 2);
         }
         else if(weatherData.condition == "Overcast"){
@@ -215,7 +206,7 @@ class WeatherScene{
             if(x <= worldHeight*0.2){
                 let a = (worldHeight*0.2 - x)/(worldHeight*0.2);
                 console.log(`x = ${x}  a = ${a}`);
-                height[x + (worldWidth * y)] = Math.random() * (50*a) + 5;
+                height[x + (worldWidth * y)] = Math.random() * (55*a) + 6;
             }else{
                 height[x + (worldWidth * y)] = Math.random() * 5;
             }
