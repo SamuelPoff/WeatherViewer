@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 
 import {WeatherSymbols} from "../objects/ASCIISymbols";
+import {GetDOW} from "../utils/DowUtil";
 
 @Component({
   selector: 'app-weather-data-details',
@@ -14,6 +15,7 @@ export class WeatherDataDetailsComponent implements OnInit {
   @Input() unit: string = "c";
 
   weatherSymbols = WeatherSymbols;
+  DOW: string = "";
 
   max_temperature: number = 0;
   min_temperature: number = 0;
@@ -24,6 +26,7 @@ export class WeatherDataDetailsComponent implements OnInit {
   ngOnInit(): void {
 
     this.assign_unit_dependant_values(this.unit);
+    this.DOW = GetDOW(this.forecastData.date);
 
   }
 
