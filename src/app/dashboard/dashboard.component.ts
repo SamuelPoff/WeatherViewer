@@ -71,6 +71,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   options: Options = new Options({types: ['locality']});
   unit: string = "c";
 
+  private testScene: Three.Scene = new Three.Scene();
+  private testOrthoCamera!: Three.OrthographicCamera;
+  private enableOrtho: boolean = false;
+
+
   constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { 
 
   }
@@ -109,6 +114,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.camera.position.y = 15;
     this.camera.position.z = 0;
 
+    //Initialize Orthographic camera
+    this.testOrthoCamera = new Three.OrthographicCamera(this.canvas.clientWidth / -2, this.canvas.clientWidth / 2, this.canvas.clientHeight/2, this.canvas.clientHeight/-2, 0, 100);
+    this.testScene.add(this.testOrthoCamera);
+
+    let testTexture = new Three.TextureLoader().load("assets/testimage.png");
+    this.testScene.add(new Three.AmbientLight(new Three.Color(0xffffff), 100));
+    let plane = new Three.Mesh(new Three.PlaneGeometry(this.canvas.clientWidth, this.canvas.clientHeight, 1, 1), new Three.MeshBasicMaterial( {map: testTexture} ));
+
+    plane.position.set(0, 0, -1);
+    this.testScene.add(plane);
+
   }
 
   private startRenderingLoop(){
@@ -116,6 +132,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.renderer = new Three.WebGLRenderer({canvas: this.canvas});
     this.renderer.setPixelRatio(devicePixelRatio);
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
+
+    this.renderer.autoClear = false;
 
     //Instaniate and setup effect composer
     this.effectComposer = new EffectComposer(this.renderer);
@@ -136,6 +154,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     let component: DashboardComponent = this;
     (function render(currentTime?: DOMHighResTimeStamp){
       
+      component.renderer.clear();
+
       //Calculate time information
       if(currentTime){
         if(!component.lastTime){
@@ -152,11 +172,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
       //Animation Loop ----
       component.weatherScene.Animate(component.totalElapsedTime, component.deltaTime);
-
-      let scene = component.weatherScene.getScene();
-      //component.renderer.render(scene, component.camera);
-      component.effectComposer?.render();
       
+      //Somewhat test code. Mainly just allows for toggling of a fullscreen texture, and since when the texture is enabled it covers the whole screen
+      //I dont really need to render the rest of the scene under it so its a one-or-the-other kind of thing
+      if(component.enableOrtho){
+
+        component.renderer.clearDepth();
+        component.renderer.render(component.testScene, component.testOrthoCamera);
+
+      }else{
+
+        component.effectComposer?.render();
+
+      }
 
       requestAnimationFrame(render);
 
@@ -179,6 +207,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.changeWeather(event.target.dataset.condition);
     }
 
+  }
+
+  toggleEnable(){
+    this.enableOrtho = !this.enableOrtho;
   }
 
 

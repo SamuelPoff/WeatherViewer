@@ -24,6 +24,10 @@
     </div>
     -->
 
+    <div>
+        <button type="button" (click)="toggleEnable()">Toggle Effect</button>
+    </div>
+
     <div class="weather-grid">
         <app-current-weather-view *ngIf="currentWeatherData" (mouseenter)="onMouseOver($event)" [weatherData]="currentWeatherData" [unit]="unit" attr.data-condition="{{currentWeatherData.condition.text}}"></app-current-weather-view>
         <app-weather-data-details *ngFor="let historyData of weatherHistoryData" (mouseenter)="onMouseOver($event)" [forecastData]="historyData" [unit]="unit" attr.data-condition="{{historyData.day.condition.text}}"></app-weather-data-details>
