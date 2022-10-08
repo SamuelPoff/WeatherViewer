@@ -90,6 +90,7 @@ class WeatherScene{
         } );
 
         this.ReturnClouds();
+        this.sun.ReturnSunRays();
         
 
     }
@@ -100,7 +101,7 @@ class WeatherScene{
         console.log("WeatherScene: Constructing scene from: " + weatherData.condition);
 
         //Setup Sun
-        let sunRays = 0;
+        let sunRays = 8;
         let strength = 1;
         if(weatherData.condition == "Sunny"){
             sunRays = 18;
@@ -112,6 +113,7 @@ class WeatherScene{
         }
 
         this.sun.strength = strength;
+        this.sun.SetupSunrays(sunRays);
         //enabled the proper number of sun rays here*******
 
         this.sun.enabled = true;

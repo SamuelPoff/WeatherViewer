@@ -5,6 +5,8 @@ import Wireframe from "./Wireframe";
 
 import Animatable from "../interfaces/Animatable";
 
+import ObjectPool from "./ObjectPool";
+
 class Sun implements Animatable{
 
     enabled: boolean = true;
@@ -16,12 +18,23 @@ class Sun implements Animatable{
 
     private sunRotationSpeed = 0.005;
     private sunRayRotationSpeed = 0.001;
+    private scene;
+
+    private material : Three.Material;
 
     strength = 1;
 
+    private sunRayPool = new ObjectPool<SunRay>(24, 
+        ()=>{
+            return new SunRay(4, 50, this.material, 0, this, this.scene);
+        });
+
     constructor(radius: number, xOffset:number, numSunRays: number, strength: number, material: Three.Material, scene: Three.Scene){
 
+        this.material = material;
+
         let geometry = new Three.IcosahedronGeometry(radius, 2);
+        this.scene = scene;
           
         this.mesh = new Three.Mesh(geometry, material);
         this.mesh.position.y = 100;
@@ -29,21 +42,6 @@ class Sun implements Animatable{
 
         this.radius = radius;
         this.strength = strength;
-
-        //Gonna keep all angles in RADIANS just so I dont forget to convert and then wonder why everything looks random and wrong
-        let angleIncrement = (Math.PI*2) / numSunRays;
-
-        let sunRayBaseRadius = 4;
-        let sunRayBaseHeight = 50;
-        for(let i = 0; i < numSunRays; i++){
-
-            let angle = angleIncrement * i;
-            let sunRay = new SunRay(sunRayBaseRadius * strength, sunRayBaseHeight * strength, material, angle, this, scene);
-
-            this.sunRays.push(sunRay);
-        }
-
-        //this.wireframe = new Wireframe(this.mesh);
 
         scene.add(this.mesh);
 
@@ -69,6 +67,39 @@ class Sun implements Animatable{
 
         }
 
+    }
+
+    SetupSunrays(num: number){
+
+        let angleIncrement = (Math.PI*2) / num;
+
+        let sunRayBaseRadius = 4;
+        let sunRayBaseHeight = 50;
+        for(let i = 0; i < num; i++){
+
+            let angle = angleIncrement * i;
+            
+            let sunRay = this.sunRayPool.Get( (instance: SunRay) => {
+                instance.SetAngle(angle);
+                instance.mesh.visible = true;
+            } );
+
+            if(sunRay)
+                this.sunRays.push(sunRay);
+
+        }
+
+    }
+
+    ReturnSunRays(){
+
+        let sunRayInstances = this.sunRayPool.GetInstancePool();
+
+        for(let i = 0; i < sunRayInstances.length; ++i){
+            this.sunRayPool.Return(i);
+        }
+
+        this.sunRays = new Array<SunRay>();
     }
     
 
