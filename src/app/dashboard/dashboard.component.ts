@@ -75,6 +75,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private testOrthoCamera!: Three.OrthographicCamera;
   private enableOrtho: boolean = false;
 
+  private plane!: Three.Mesh;
+  private staticTexture!: Three.Texture;
+
+  private transitionTimerActive: boolean = false;
+  private transitionTime: number = 0.3;
+  private transitionCounter: number = 0.0;
+
 
   constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { 
 
@@ -118,9 +125,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.testOrthoCamera = new Three.OrthographicCamera(this.canvas.clientWidth / -2, this.canvas.clientWidth / 2, this.canvas.clientHeight/2, this.canvas.clientHeight/-2, 0, 100);
     this.testScene.add(this.testOrthoCamera);
 
-    let testTexture = new Three.TextureLoader().load("assets/testimage.png");
+    this.staticTexture = new Three.TextureLoader().load("assets/static2.jpg");
+    this.staticTexture.wrapS = Three.RepeatWrapping;
+    this.staticTexture.wrapT = Three.RepeatWrapping;
+
+    this.staticTexture.repeat.x = 5;
+    this.staticTexture.repeat.y = 5;
     this.testScene.add(new Three.AmbientLight(new Three.Color(0xffffff), 100));
-    let plane = new Three.Mesh(new Three.PlaneGeometry(this.canvas.clientWidth, this.canvas.clientHeight, 1, 1), new Three.MeshBasicMaterial( {map: testTexture} ));
+    let plane = new Three.Mesh(new Three.PlaneGeometry(this.canvas.clientWidth, this.canvas.clientHeight, 1, 1), new Three.MeshBasicMaterial( {map: this.staticTexture} ));
 
     plane.position.set(0, 0, -1);
     this.testScene.add(plane);
@@ -178,12 +190,28 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if(component.enableOrtho){
 
         component.renderer.clearDepth();
+
+        component.staticTexture.offset.x = Math.random();
+        component.staticTexture.offset.y = Math.random();
+
         component.renderer.render(component.testScene, component.testOrthoCamera);
 
       }else{
 
         component.effectComposer?.render();
 
+      }
+
+
+      //Pseudo Update code----
+      if(component.transitionTimerActive){
+        if(component.transitionCounter >= component.transitionTime){
+          component.enableOrtho = false;
+          component.transitionTimerActive = false;
+          component.transitionCounter = 0.0;
+        }else{
+          component.transitionCounter += component.deltaTime/1000;
+        }
       }
 
       requestAnimationFrame(render);
@@ -205,6 +233,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if(event.target.dataset.condition){
       console.log(event.target.dataset.condition);
       this.changeWeather(event.target.dataset.condition);
+
+      this.transitionTimerActive = true;
+      this.transitionCounter = 0.0;
+      this.enableOrtho = true;
     }
 
   }
