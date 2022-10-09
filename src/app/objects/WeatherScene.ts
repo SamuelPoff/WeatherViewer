@@ -5,6 +5,7 @@ import WeatherData from "./WeatherData";
 import Sun from "./Sun";
 import Terrain from "./Terrain";
 import Cloud from './Cloud';
+import Rain from './Rain';
 
 import Animatable from "../interfaces/Animatable";
 
@@ -31,6 +32,12 @@ class WeatherScene{
     terrain!: Terrain;
 
     cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
+    rainObjectPool = new ObjectPool<Rain>(256, ()=>{ return new Rain(this.gradientMaterial, new Vector3(0,0,0), 1.0) });
+
+    raining: boolean = true;
+    rainHeight = 50.0;
+    rainWidth = 50.0;
+    rainLength = 50.0;
 
     constructor(weatherData?: WeatherData){
 
@@ -76,6 +83,29 @@ class WeatherScene{
             }
 
         });
+
+        if(this.raining){
+            if(Math.random() > 0.75){
+                let raindrop = this.rainObjectPool.Get( (instance: Rain)=>{ instance.Setup( new Vector3(0, -10, 1), 0.25);
+                instance.mesh.position.set(-Math.random()*50, 30, Math.random() * 100 - 50) } );
+                if(raindrop){
+                    this.scene.add(raindrop.mesh);
+                    raindrop.enabled = true;
+                    raindrop.mesh.visible = true;
+
+                    raindrop.onDestroy = this.rainOnDestroy;
+                    raindrop.onDestroyContext = this;
+
+                    //If animatables doesnt already contain this raindrop instance, add it
+                    if(!this.animatables.find( (value)=>{return value === raindrop} )){
+                        console.log("Adding new raindrop");
+                        this.animatables.push(raindrop);
+                    }
+
+                }
+            }
+        }
+
     }
 
     getScene(): Three.Scene{
@@ -91,6 +121,7 @@ class WeatherScene{
 
         this.ReturnClouds();
         this.sun.ReturnSunRays();
+        this.ReturnRain();
         
 
     }
@@ -186,11 +217,35 @@ class WeatherScene{
             this.cloudObjectPool.Return(i);
             instancePool[i].enabled = false;
 
-            this.animatables = this.animatables.filter((value)=>{
-                return !(value instanceof Cloud);
-            });
         }
 
+        this.animatables = this.animatables.filter((value)=>{
+            return !(value instanceof Cloud);
+        });
+
+    }
+
+    //Return all raindrops as available to the objectPool and disable animation for them
+    ReturnRain(){
+
+        let instancePool = this.rainObjectPool.GetInstancePool();
+
+        for(let i = 0; i < instancePool.length; ++i){
+            this.rainObjectPool.Return(i);
+            instancePool[i].enabled = false;
+        }
+
+        this.animatables = this.animatables.filter((value)=>{
+            return !(value instanceof Rain);
+        });
+
+    }
+
+    rainOnDestroy(rain: Rain){
+
+        rain.mesh.visible = false;
+        rain.enabled = false;
+        this.rainObjectPool.ReturnInst(rain);
     }
 
 

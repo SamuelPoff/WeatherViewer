@@ -90,7 +90,7 @@ class Cloud implements Animatable{
 
     SpawnRaindrop(){
 
-        let raindrop = new Rain(this.material, this.rainDirection, 1.5, this);
+        let raindrop = new Rain(this.material, this.rainDirection, 1.5);
         
         let x = ((Math.random() * 2) - 1) * 10;
         let z = ((Math.random() * 2) - 1) * 30;

@@ -18,14 +18,15 @@ class Rain implements Animatable{
     mesh: Three.Mesh;
     wireframe: Wireframe;
 
-    cloud: Cloud;
-
     direction: Three.Vector3;
     speed: number;
 
     lifetime: number = 0;
 
-    constructor(material: Three.Material, direction: Three.Vector3, speed: number, cloud: Cloud){
+    public onDestroy?: (rain: Rain)=>void
+    public onDestroyContext?: any;
+
+    constructor(material: Three.Material, direction: Three.Vector3, speed: number){
 
         let geometry = new Three.ConeGeometry(Rain.baseRadius, Rain.baseHeight, Rain.radialSegments, 1);
         this.mesh = new Three.Mesh(geometry, material);
@@ -42,8 +43,6 @@ class Rain implements Animatable{
         let randomScale = Rain.baseScale + (((Math.random() * 2) - 1) * 0.5);
         this.mesh.scale.multiplyScalar(randomScale);
 
-        this.cloud = cloud;
-
     }
 
     Animate(totalElapsedTime: number, deltaTime: number){
@@ -56,8 +55,32 @@ class Rain implements Animatable{
 
         this.lifetime += deltaTime;
         if(this.lifetime >= 2000) {
-            this.cloud.RemoveRaindrop(this);
+            if(this.onDestroy){
+                if(this.onDestroyContext){
+                    this.onDestroy.apply(this.onDestroyContext, [this]);
+                }else{
+                    this.onDestroy(this);
+                }
+            }
         }
+
+    }
+
+    Setup(direction: Vector3, speed: number){
+
+        //this.mesh.rotation.set(0,0,0);
+        
+        let lookAt = new Three.Vector3(direction.x, -1 * direction.z, direction.y)
+        this.mesh.lookAt(lookAt);
+
+        this.direction = direction;
+        this.speed = speed;
+
+        //Randomize scale
+        let randomScale = Rain.baseScale + (((Math.random() * 2) - 1) * 0.5);
+        this.mesh.scale.set(randomScale, randomScale, randomScale);
+
+        this.lifetime = 0;
 
     }
 

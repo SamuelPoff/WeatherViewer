@@ -23,6 +23,9 @@
         <button type="button" (click)="clearWeatherScene()">[TEST] Clear Scene</button>
     </div>
     -->
+    <div>
+        Rain Count: {{weatherScene.rainObjectPool.GetInstancePool().length}}
+    </div>
 
     <div class="weather-grid">
         <app-current-weather-view *ngIf="currentWeatherData" (mouseenter)="onMouseOver($event)" [weatherData]="currentWeatherData" [unit]="unit" attr.data-condition="{{currentWeatherData.condition.text}}"></app-current-weather-view>

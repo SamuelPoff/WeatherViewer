@@ -84,15 +84,21 @@ class ObjectPool<T>{
 
     ReturnInst(inst: T): void{
 
-        let index = this.instancePool.findIndex((element) => { inst == element});
-        if(index <= -1){
-            //Instance didnt exist in pool apparently
-            console.log("Tried to return instance that did not exist in pool");
-            return;
+
+        let i = 0;
+        while(i < this.instancePool.length){
+            let instance = this.instancePool[i];
+
+            if(instance === inst){
+                this.instanceState[i] = false;
+                this.indexStack.push(i);
+                return;
+            }
+
+            ++i;
         }
 
-        this.instanceState[index] = false;
-        this.indexStack.push(index);
+        console.log("Tried to return instance that didnt exist");
 
     }
 
