@@ -32,12 +32,14 @@ class WeatherScene{
     terrain!: Terrain;
 
     cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
-    rainObjectPool = new ObjectPool<Rain>(256, ()=>{ return new Rain(this.gradientMaterial, new Vector3(0,0,0), 1.0) });
+    rainObjectPool = new ObjectPool<Rain>(256, ()=>{ return new Rain(this.gradientMaterial, new Vector3(0,10,-1), 1.0) });
 
     raining: boolean = true;
     rainHeight = 50.0;
     rainWidth = 50.0;
     rainLength = 50.0;
+
+    rainDirection: Three.Euler;
 
     constructor(weatherData?: WeatherData){
 
@@ -71,6 +73,11 @@ class WeatherScene{
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
         //: spawn amount of raindrops appropriate for how much its supposed to rain
 
+        let rain = new Rain(this.gradientMaterial, new Vector3(0,0,0), 0);
+        rain.mesh.lookAt(new Vector3(0, 10, -1).normalize());
+
+        this.rainDirection = rain.mesh.rotation;
+
     }
 
     
@@ -86,7 +93,7 @@ class WeatherScene{
 
         if(this.raining){
             if(Math.random() > 0.75){
-                let raindrop = this.rainObjectPool.Get( (instance: Rain)=>{ instance.Setup( new Vector3(0, -10, 1), 0.25);
+                let raindrop = this.rainObjectPool.Get( (instance: Rain)=>{ instance.Setup( new Vector3(0, -10, 1), this.rainDirection ,0.25);
                 instance.mesh.position.set(-Math.random()*50, 30, Math.random() * 100 - 50) } );
                 if(raindrop){
                     this.scene.add(raindrop.mesh);

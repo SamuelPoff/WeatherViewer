@@ -66,12 +66,9 @@ class Rain implements Animatable{
 
     }
 
-    Setup(direction: Vector3, speed: number){
+    Setup(direction: Vector3, rotation: Three.Euler, speed: number){
 
-        //this.mesh.rotation.set(0,0,0);
-        
-        let lookAt = new Three.Vector3(direction.x, -1 * direction.z, direction.y)
-        this.mesh.lookAt(lookAt);
+        this.mesh.rotation.set(rotation.x, rotation.y, rotation.z);
 
         this.direction = direction;
         this.speed = speed;
