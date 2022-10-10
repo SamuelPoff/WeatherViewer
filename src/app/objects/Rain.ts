@@ -36,7 +36,7 @@ class Rain implements Animatable{
         let lookAt = new Three.Vector3(direction.x, -1 * direction.z, direction.y)
         this.mesh.lookAt(lookAt);
 
-        this.direction = direction;
+        this.direction = direction.normalize();
         this.speed = speed;
 
         //Randomize scale
@@ -66,11 +66,14 @@ class Rain implements Animatable{
 
     }
 
-    Setup(direction: Vector3, rotation: Three.Euler, speed: number){
+    Setup(direction: Vector3, speed: number){
 
-        this.mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+        //Set position to (0,0,0) so that lookat "looks at" the correct direction (since the direction is based on an origin of 0,0,0)
+        this.mesh.position.set(0,0,0);
+        let lookAt: Vector3 = new Vector3(direction.x, -1* direction.z, this.direction.y);
+        this.mesh.lookAt(lookAt);
 
-        this.direction = direction;
+        this.direction = direction.normalize();
         this.speed = speed;
 
         //Randomize scale

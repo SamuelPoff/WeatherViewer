@@ -241,8 +241,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
-  toggleEnable(){
-    this.enableOrtho = !this.enableOrtho;
+  toggleRain(){
+    this.weatherScene.raining = !this.weatherScene.raining;
   }
 
 
