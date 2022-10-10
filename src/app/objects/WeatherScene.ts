@@ -6,6 +6,7 @@ import Sun from "./Sun";
 import Terrain from "./Terrain";
 import Cloud from './Cloud';
 import Rain from './Rain';
+import Snow from './Snow';
 
 import Animatable from "../interfaces/Animatable";
 
@@ -33,14 +34,17 @@ class WeatherScene{
 
     cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
     rainObjectPool = new ObjectPool<Rain>(256, ()=>{ return new Rain(this.gradientMaterial, this.rainDirection, this.rainSpeed) });
+    snowObjectPool = new ObjectPool<Snow>(256, ()=>{ return new Snow(this.gradientMaterial, this.rainDirection, this.snowSpeed) });
 
-    raining: boolean = true;
-    rainHeight = 50.0;
+    raining: boolean = true; //Wether there is rain or not
+    freezing: boolean = true; //Wether that rain is snow or if its actually rain
+    rainHeight = 70.0;
     rainWidth = 70.0;
     rainLength = 100.0;
 
     rainDirection: Three.Vector3 = new Vector3(0, -10, 1.5);
     rainSpeed: number = 1.5;
+    snowSpeed: number = 0.5;
 
     constructor(weatherData?: WeatherData){
 
@@ -88,24 +92,11 @@ class WeatherScene{
         });
 
         if(this.raining){
-            if(Math.random() > 0.75){
-                let raindrop = this.rainObjectPool.Get( (instance: Rain)=>{ instance.Setup( this.rainDirection, this.rainSpeed);
-                instance.mesh.position.set(-Math.random()*this.rainWidth, this.rainHeight, Math.random() * (this.rainLength*2) - this.rainLength) } );
-                if(raindrop){
-                    this.scene.add(raindrop.mesh);
-                    raindrop.enabled = true;
-                    raindrop.mesh.visible = true;
 
-                    raindrop.onDestroy = this.rainOnDestroy;
-                    raindrop.onDestroyContext = this;
+            if(Math.random() > 0.65){
 
-                    //If animatables doesnt already contain this raindrop instance, add it
-                    if(!this.animatables.find( (value)=>{return value === raindrop} )){
-                        console.log("Adding new raindrop");
-                        this.animatables.push(raindrop);
-                    }
-
-                }
+                this.SpawnRain();
+                
             }
         }
 
@@ -126,6 +117,57 @@ class WeatherScene{
         this.sun.ReturnSunRays();
         this.ReturnRain();
         
+
+    }
+
+    SpawnRain(){
+
+        if(!this.freezing){
+
+            let raindrop = this.rainObjectPool.Get( (instance: Rain)=>{ instance.Setup( this.rainDirection, this.rainSpeed);
+            instance.mesh.position.set(-Math.random()*this.rainWidth, this.rainHeight, Math.random() * (this.rainLength*2) - this.rainLength) } );
+
+            if(raindrop){
+                this.scene.add(raindrop.mesh);
+                raindrop.enabled = true;
+                raindrop.mesh.visible = true;
+
+                raindrop.onDestroy = this.rainOnDestroy;
+                raindrop.onDestroyContext = this;
+
+                //If animatables doesnt already contain this raindrop instance, add it
+                if(!this.animatables.find( (value)=>{return value === raindrop} )){
+                    console.log("Adding new raindrop");
+                    this.animatables.push(raindrop);
+                }
+
+            }
+
+        }
+        else
+        {
+
+            let snow = this.snowObjectPool.Get( (instance: Snow)=>{ 
+                instance.Setup(this.rainDirection, this.snowSpeed)
+                instance.mesh.position.set(-Math.random()*this.rainWidth, this.rainHeight, Math.random() * (this.rainLength*2) - this.rainLength);
+            });
+
+            if(snow){
+                this.scene.add(snow.mesh);
+                snow.enabled = true;
+                snow.mesh.visible = true;
+
+                snow.onDestroy = this.snowOnDestroy;
+                snow.onDestroyContext = this;
+
+                //If animatables doesnt already have this snowflake then add it
+                if(!this.animatables.find( (value)=>{return value === snow} )){
+                    console.log("Adding new snow");
+                    this.animatables.push(snow);
+                }
+            }
+
+        }
 
     }
 
@@ -249,6 +291,31 @@ class WeatherScene{
         rain.mesh.visible = false;
         rain.enabled = false;
         this.rainObjectPool.ReturnInst(rain);
+
+    }
+
+    //Return all snow to the object pool
+    ReturnSnow(){
+
+        let instancePool = this.snowObjectPool.GetInstancePool();
+
+        for(let i = 0; i < instancePool.length; ++i){
+            this.snowObjectPool.Return(i);
+            instancePool[i].enabled = false;
+        }
+
+        this.animatables = this.animatables.filter( (value)=>{
+            return !(value instanceof Snow);
+        } )
+
+    }
+
+    snowOnDestroy(snow: Snow){
+
+        snow.mesh.visible = false;
+        snow.enabled = false;
+
+        this.snowObjectPool.ReturnInst(snow);
 
     }
 
