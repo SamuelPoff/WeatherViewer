@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 
-import {WeatherSymbols} from "../objects/ASCIISymbols";
+import {GetWeatherArt} from "../utils/WeatherConditionUtil";
 
 @Component({
   selector: 'app-current-weather-view',
@@ -17,10 +17,10 @@ export class CurrentWeatherViewComponent implements OnInit, OnChanges {
   temperature: number = 0;
   feelslike: number = 0;
 
-  weatherSymbols = WeatherSymbols
+  weatherSymbol?: string;
 
   ngOnInit(): void {
-    
+    this.weatherSymbol = GetWeatherArt(this.weatherData.condition.code);
   }
 
   ngOnChanges(changes: any){
