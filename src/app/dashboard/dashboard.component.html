@@ -30,9 +30,9 @@
     </div>
 
     <div class="weather-grid">
-        <app-current-weather-view *ngIf="currentWeatherData" (mouseenter)="onMouseOver($event)" [weatherData]="currentWeatherData" [unit]="unit" attr.data-condition="{{currentWeatherData.condition.text}}"></app-current-weather-view>
-        <app-weather-data-details *ngFor="let historyData of weatherHistoryData" (mouseenter)="onMouseOver($event)" [forecastData]="historyData" [unit]="unit" attr.data-condition="{{historyData.day.condition.text}}"></app-weather-data-details>
-        <app-weather-data-details *ngFor="let forecastData of weatherForecastData" (mouseenter)="onMouseOver($event)" [forecastData]="forecastData" [unit]="unit" attr.data-condition="{{forecastData.day.condition.text}}"></app-weather-data-details>
+        <app-current-weather-view *ngIf="currentWeatherData" (mouseenter)="onMouseOver($event)" [weatherData]="currentWeatherData" [unit]="unit" attr.data-condition="{{currentWeatherData.condition.code}}"></app-current-weather-view>
+        <app-weather-data-details *ngFor="let historyData of weatherHistoryData" (mouseenter)="onMouseOver($event)" [forecastData]="historyData" [unit]="unit" attr.data-condition="{{historyData.day.condition.code}}"></app-weather-data-details>
+        <app-weather-data-details *ngFor="let forecastData of weatherForecastData" (mouseenter)="onMouseOver($event)" [forecastData]="forecastData" [unit]="unit" attr.data-condition="{{forecastData.day.condition.code}}"></app-weather-data-details>
     </div>
 
 </div>

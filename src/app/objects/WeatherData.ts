@@ -5,6 +5,7 @@ class WeatherData{
 
     uv: number = 0;
     condition: string = "";
+    conditionCode: number = 0;
 
     constructor(){
         

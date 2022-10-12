@@ -4,7 +4,7 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {WeatherService} from "../weather.service";
 import { PlacesAutocompleteService } from '../places-autocomplete.service';
 
-import {CurrentWeatherData} from "../interfaces/CurrentWeatherData";
+import {GetWeatherCondition} from "../utils/WeatherConditionUtil";
 
 import { Options } from "ngx-google-places-autocomplete/objects/options/options";
 import { Address } from 'ngx-google-places-autocomplete/objects/address';
@@ -102,7 +102,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
 
     this.getUserLocation();
-    this.changeWeather("Sunny");
+    this.changeWeather("1000");
 
   }
 
@@ -231,7 +231,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   onMouseOver(event: any){
 
     if(event.target.dataset.condition){
-      console.log(event.target.dataset.condition);
+      
       this.changeWeather(event.target.dataset.condition);
 
       this.transitionTimerActive = true;
@@ -246,15 +246,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
 
-  changeWeather(weatherDescription: string){
-
-    console.log("Called change weather: " + weatherDescription);
-
-    let weatherData = new WeatherData();
-    weatherData.condition = weatherDescription;
+  changeWeather(weatherConditionCode: string){
 
     this.weatherScene.Clear();
-    this.weatherScene.ConstructScene(weatherData);
+
+    let code = parseInt(weatherConditionCode);
+    const weatherCondition = GetWeatherCondition(code);
+    this.weatherScene.ConstructScene(weatherCondition);
 
   }
 

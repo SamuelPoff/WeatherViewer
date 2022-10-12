@@ -11,6 +11,7 @@ import Snow from './Snow';
 import Animatable from "../interfaces/Animatable";
 
 import {CreateGradientShader} from "./Shaders";
+import {GetWeatherCondition, WeatherCondition, WeatherType, WeatherStrength} from "../utils/WeatherConditionUtil";
 
 import ObjectPool from "./ObjectPool";
 import { Vector3 } from "three";
@@ -45,6 +46,9 @@ class WeatherScene{
     rainDirection: Three.Vector3 = new Vector3(0, -10, 1.5);
     rainSpeed: number = 1.5;
     snowSpeed: number = 0.5;
+    snowScale: Vector3 = new Vector3(1.0, 1.0, 1.0);
+
+    rainFrequency: number = 0.35;
 
     constructor(weatherData?: WeatherData){
 
@@ -93,7 +97,7 @@ class WeatherScene{
 
         if(this.raining){
 
-            if(Math.random() > 0.65){
+            if(Math.random() < this.rainFrequency){
 
                 this.SpawnRain();
                 
@@ -150,6 +154,7 @@ class WeatherScene{
             let snow = this.snowObjectPool.Get( (instance: Snow)=>{ 
                 instance.Setup(this.rainDirection, this.snowSpeed)
                 instance.mesh.position.set(-Math.random()*this.rainWidth, this.rainHeight, Math.random() * (this.rainLength*2) - this.rainLength);
+                instance.mesh.scale.set(this.snowScale.x, this.snowScale.y, this.snowScale.z);
             });
 
             if(snow){
@@ -172,20 +177,99 @@ class WeatherScene{
     }
 
     //Construct the current scene based on the weather data passed in.
-    ConstructScene(weatherData: WeatherData){
+    ConstructScene(weatherCondition: WeatherCondition){
 
-        console.log("WeatherScene: Constructing scene from: " + weatherData.condition);
+        this.raining = false;
+        this.freezing = false;
+
+        this.rainSpeed = 1.5;
+        this.snowSpeed = 0.5;
+
+        this.snowScale.set(1.0, 1.0, 1.0);
 
         //Setup Sun
         let sunRays = 8;
         let strength = 1;
-        if(weatherData.condition == "Sunny"){
-            sunRays = 18;
-            strength = 1.4;
-        }
-        else if(weatherData.condition == "Partly cloudy"){
-            sunRays = 16;
-            strength = 0.8;
+
+        switch(weatherCondition.type){
+            case WeatherType.Sunny:{
+
+                sunRays = 14;
+                strength = 1.3;
+
+                break;
+            }
+            case WeatherType.Cloudy:{
+                
+                if(weatherCondition.strength == WeatherStrength.Weak){
+                    this.generateCloudCover(0.25, false, 6, 18, 24, 7, 2);
+                }
+                else if(weatherCondition.strength == WeatherStrength.Medium){
+                    this.generateCloudCover(0.50, false, 6, 18, 23, 7, 2);
+                }
+                else if(weatherCondition.strength == WeatherStrength.Strong){
+                    this.generateCloudCover(0.75, false, 6, 18, 22, 7, 2);
+                }
+
+                break;
+            }
+            case WeatherType.Rain:{
+
+                sunRays = 0;
+                strength = 0.6;
+
+                this.raining = true;
+                this.generateCloudCover(0.85, false, 6, 18, 22, 7, 2);
+                
+                if(weatherCondition.strength == WeatherStrength.Weak){
+                    this.rainFrequency = 0.15;
+                }
+                else if(weatherCondition.strength == WeatherStrength.Medium){
+                    this.rainFrequency = 0.25;
+                }
+                else if(weatherCondition.strength == WeatherStrength.Strong){
+                    this.rainFrequency = 0.50;
+                    this.rainSpeed = 1.7;
+                }
+
+                break;
+            }
+            case WeatherType.Snow:{
+
+                this.raining = true;
+                this.freezing = true;
+
+                sunRays = 0;
+                strength = 0.5;
+
+                this.generateCloudCover(0.85, false, 6, 18, 22, 7, 2);
+
+                if(weatherCondition.strength == WeatherStrength.Weak){
+                    this.rainFrequency = 0.15;
+                }
+                else if(weatherCondition.strength == WeatherStrength.Medium){
+                    this.rainFrequency = 0.25;
+                }
+                else if(weatherCondition.strength == WeatherStrength.Strong){
+                    this.rainFrequency = 0.40;
+                }
+                else if(weatherCondition.strength == WeatherStrength.VeryStrong){
+                    this.rainFrequency = 0.70;
+                    this.snowSpeed = 1.4;
+                    this.snowScale.set(2.0, 2.0, 2.0);
+                }
+
+                break;
+            }
+            case WeatherType.Hail:{
+                break;
+            }
+            case WeatherType.Mist:{
+                break;
+            }
+            case WeatherType.Fog:{
+                break;
+            }
         }
 
         this.sun.strength = strength;
@@ -197,14 +281,6 @@ class WeatherScene{
         
         //Enable terrain
         this.terrain.mesh.visible = true;
-
-        //Setup Clouds
-        if(weatherData.condition == "Partly cloudy"){
-            this.generateCloudCover(0.25, false, 6, 18, 24, 5, 2);
-        }
-        else if(weatherData.condition == "Overcast"){
-            this.generateCloudCover(0.85, false, 10, 18, 22, 8, 2);
-        }
 
         //Enable lights
         this.pointLight.visible = true;

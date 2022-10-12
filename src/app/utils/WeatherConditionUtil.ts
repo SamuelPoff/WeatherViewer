@@ -2,9 +2,9 @@ import { WeatherSymbols } from "../objects/ASCIISymbols";
 
 //A helper class to try and boil down the complex descriptions of the weather from WeatherAPI, into something I can use to
 //measure and parameterize the weather scene construction
-class WeatherCondition{
+export class WeatherCondition{
 
-    type: WeatherType
+    type: WeatherType;
     strength: WeatherStrength;
 
     weatherASCII: string;
@@ -17,7 +17,7 @@ class WeatherCondition{
 
 }
 
-enum WeatherType{
+export enum WeatherType{
 
     Sunny = 0,
     Cloudy,
@@ -29,7 +29,7 @@ enum WeatherType{
 
 }
 
-enum WeatherStrength{
+export enum WeatherStrength{
 
     Weak = 0,
     Medium = 1,
@@ -105,5 +105,16 @@ export function GetWeatherArt(conditionCode: number): string{
     }
 
     return unknownWeather.weatherASCII;
+
+}
+
+export function GetWeatherCondition(conditionCode: number): WeatherCondition{
+
+    const weatherCondition = weatherCodeMap.get(conditionCode);
+    if(weatherCondition){
+        return weatherCondition;
+    }
+
+    return unknownWeather;
 
 }
