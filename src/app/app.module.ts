@@ -6,18 +6,14 @@ import {RouterModule, Routes} from '@angular/router';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { GooglePlaceModule } from 'ngx-google-places-autocomplete';
-import { WeatherHistoryComponent } from './weather-history/weather-history.component';
 import { CurrentWeatherViewComponent } from './current-weather-view/current-weather-view.component';
-import { WeatherForecastComponent } from './weather-forecast/weather-forecast.component';
 import { WeatherDataDetailsComponent } from './weather-data-details/weather-data-details.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
-    WeatherHistoryComponent,
     CurrentWeatherViewComponent,
-    WeatherForecastComponent,
     WeatherDataDetailsComponent
   ],
   imports: [
@@ -26,8 +22,6 @@ import { WeatherDataDetailsComponent } from './weather-data-details/weather-data
     GooglePlaceModule,
     RouterModule.forRoot([
       {path:'dashboard', component: DashboardComponent},
-      {path:'forecast', component: WeatherForecastComponent},
-      {path:'history', component: WeatherHistoryComponent},
       {path:'', redirectTo:'dashboard', pathMatch:'full'}
     ])
   ],

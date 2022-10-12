@@ -13,21 +13,7 @@
 <!-- Reminder that WeatherApi defines the data type 'Forecast' to represent both weather history and literal weather forecasts (kinda confusing on the surface) -->
 <div class="weather">
 
-    <!--
-    <div>
-        <p>Cloud Pool Count: {{weatherScene.cloudObjectPool.GetInstancePool().length}}</p>
-
-        <button type="button" (click)="changeWeather('Sunny')">[TEST] Sunny</button>
-        <button type="button" (click)="changeWeather('Partly cloudy')">[TEST] Partly Cloudy</button>
-        <button type="button" (click)="changeWeather('Overcast')">[TEST] Overcast</button>
-        <button type="button" (click)="clearWeatherScene()">[TEST] Clear Scene</button>
-    </div>
-    -->
-    <div>
-        Rain Count: {{weatherScene.rainObjectPool.GetInstancePool().length}}
-        Snow Count: {{weatherScene.snowObjectPool.GetInstancePool().length}}
-        <button (click)="toggleRain()">Toggle Rain</button>
-    </div>
+    <div *ngIf="isLoading">Weather Details Loading</div>
 
     <div class="weather-grid">
         <app-current-weather-view *ngIf="currentWeatherData" (mouseenter)="onMouseOver($event)" [weatherData]="currentWeatherData" [unit]="unit" attr.data-condition="{{currentWeatherData.condition.code}}"></app-current-weather-view>

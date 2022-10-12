@@ -1,6 +1,8 @@
 import { Component, ElementRef, OnInit, AfterViewInit, ViewChild, Input, HostListener } from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 
+import {environment} from "../../environments/environment";
+
 import {WeatherService} from "../weather.service";
 import { PlacesAutocompleteService } from '../places-autocomplete.service';
 
@@ -10,7 +12,7 @@ import { Options } from "ngx-google-places-autocomplete/objects/options/options"
 import { Address } from 'ngx-google-places-autocomplete/objects/address';
 
 import * as Three from "three";
-import { timestamp } from 'rxjs';
+import { combineLatestWith, Observable, timestamp, zip, zipAll, zipWith } from 'rxjs';
 import { MathUtils, Vector2 } from 'three';
 
 import WeatherData from "../objects/WeatherData";
@@ -21,6 +23,7 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {BloomPass} from "three/examples/jsm/postprocessing/BloomPass";
 import {FilmPass} from "three/examples/jsm/postprocessing/FilmPass";
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,6 +34,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvas')
   private canvasRef!: ElementRef;
+
+  isLoading: boolean = false;
 
   /* Three.js setup variables */
   @Input() public rotationSpeedX: number = 0.05;
@@ -241,76 +246,107 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
-  toggleRain(){
-    this.weatherScene.raining = !this.weatherScene.raining;
-  }
 
-
+  //Clears WeatherScene and calls ConstructScene with the condition code from WeatherAPI
   changeWeather(weatherConditionCode: string){
 
     this.weatherScene.Clear();
 
     let code = parseInt(weatherConditionCode);
     const weatherCondition = GetWeatherCondition(code);
+    
     this.weatherScene.ConstructScene(weatherCondition);
 
   }
 
-  clearWeatherScene(){
-    this.weatherScene.Clear();
-  }
 
-
-  /* Gather all weather information for current, past and future weather to display */
+  /* Gather all weather information for current, past and future weather to display 
+     Checks for cached weather data, and caches weather data that is out of date or has not previously been cached*/
   getAllWeather(location: string){
 
-    this.getCurrentWeather(location);
-    this.getWeatherHistory(location);
-    this.getWeatherForecast(location);
+    //Check for cached data----
+    const cachedWeatherData = this.GetCachedWeatherData(location);
+    if(cachedWeatherData){
+      console.log(`Cached Weather Data: ${cachedWeatherData}`);
+      console.log(cachedWeatherData);
+
+      this.SetAllWeatherData(cachedWeatherData.current, cachedWeatherData.history, cachedWeatherData.forecast);
+      return;
+
+    }
+
+    this.isLoading = true;
+
+    this.currentWeatherData = null;
+    this.weatherHistoryData = new Array<any>;
+    this.weatherForecastData = new Array<any>;
+
+    let dateTime = "2022-10-11"
+
+    const currentWeather$ = this.weatherService.getCurrentWeather(location);
+    const weatherHistory$ = this.weatherService.getHistoricalWeather(location, dateTime);
+    const weatherForecast$ = this.weatherService.getForecast(location, 7);
+
+    currentWeather$.pipe(
+      combineLatestWith(weatherHistory$, weatherForecast$)
+    ).subscribe( ([current, history, forecast])=>{
+
+      this.SetAllWeatherData(current, history, forecast);
+      this.isLoading = false;
+
+      this.CacheWeatherData(location, current, history, forecast);
+
+    }, (error)=>{console.log(console.log(`Error while pulling weather data: ${error}`))} );
 
   }
 
-  OnTemperatureUnitChange(unit: any){
+  //Store the current weather information in local storage with a unix timestamp of when it was created
+  CacheWeatherData(location: string, currentWeather: any, weatherHistory: any, weatherForecast: any){
 
-    this.unit = unit;
+    let weatherData = {current: currentWeather, history: weatherHistory, forecast: weatherForecast, time: Date.now()}
+    localStorage.setItem(location, JSON.stringify(weatherData));
 
   }
+
+  //Attempt to retrieve stored weather data about a location from local storage
+  //return null if thr location does exist or if thr location does exist but its timestamp is out of a particular range
+  GetCachedWeatherData(location: string): any | null{
+
+    const weatherDataString = localStorage.getItem(location);
+    if(weatherDataString){
+
+      const weatherData = JSON.parse(weatherDataString);
+      if(Date.now() - weatherData.time >= environment.cacheTimeout){
+
+        //Weather data is outdated, remove it
+        localStorage.removeItem(location);
+        console.log("Removing out-of-date cached weather");
+        return null;
+
+      }
+
+      //Weather data was not outdated yet, return it
+      console.log(`Cached Weather Data found for: ${location}`);
+      return weatherData;
+
+    }
+    
+    return null;
+
+  }
+
+
+  //Properly set currentWeatherData, weatherHistoryData, weatherForecastData with the response data from WeatherAPI
+  SetAllWeatherData(current: any, history: any, forecast: any){
+
+    this.currentWeatherData = current.current;
+    this.weatherHistoryData = history.forecast.forecastday;
+    this.weatherForecastData = forecast.forecast.forecastday;
+
+  }
+
+
   
-
-  /* Get the current weather for the given location (NOTE: current weather data is stored in different format) */
-  getCurrentWeather(location: string){
-
-    this.weatherService.getCurrentWeather( location ).subscribe((res: any)=>{
-
-      this.currentWeatherData = res.current;
-
-    });
-
-  }
-
-  /* Get weather history data across the past 7 days */
-  getWeatherHistory(location: string){
-
-    let dateTime:string = "2022-10-4";
-
-    this.weatherService.getHistoricalWeather(location, dateTime).subscribe((res:any )=>{
-
-      this.weatherHistoryData = res.forecast.forecastday;
-
-    });
-
-  }
-
-  /* Get weather forecast for the next 7 days */
-  getWeatherForecast(location: string){
-
-    this.weatherService.getForecast(location, 7).subscribe(( res:any )=>{
-
-      this.weatherForecastData = res.forecast.forecastday;
-
-    });
-
-  }
 
   getUserLocation(){
 
@@ -336,6 +372,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
+
+  OnTemperatureUnitChange(unit: any){
+
+    this.unit = unit;
+
+  }
+
+
+
   addressChange(address: Address){
     
     this.thelocation = address.formatted_address;
@@ -343,6 +388,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   }
 
+
+  
   onUnitChange(value: string){
 
     this.unit = value;

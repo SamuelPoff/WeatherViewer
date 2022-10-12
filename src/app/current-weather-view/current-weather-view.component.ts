@@ -25,12 +25,14 @@ export class CurrentWeatherViewComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: any){
 
-    if(changes.unit.currentValue === "c"){
-      this.temperature = this.weatherData.temp_c;
-      this.feelslike = this.weatherData.feelslike_c;
-    }else{
-      this.temperature = this.weatherData.temp_f;
-      this.feelslike = this.weatherData.feelslike_f;
+    if(changes.unit){
+      if(changes.unit.currentValue === "c"){
+        this.temperature = this.weatherData.temp_c;
+        this.feelslike = this.weatherData.feelslike_c;
+      }else{
+        this.temperature = this.weatherData.temp_f;
+        this.feelslike = this.weatherData.feelslike_f;
+      }
     }
 
   }
