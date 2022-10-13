@@ -107,7 +107,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
 
     this.getUserLocation();
-    this.changeWeather("1000");
+    this.changeWeather("1147");
 
   }
 

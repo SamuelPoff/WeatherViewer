@@ -7,6 +7,7 @@ import Terrain from "./Terrain";
 import Cloud from './Cloud';
 import Rain from './Rain';
 import Snow from './Snow';
+import Hail from './Hail';
 
 import Animatable from "../interfaces/Animatable";
 
@@ -25,6 +26,7 @@ class WeatherScene{
 
     private gradientMaterial! : Three.Material;
     private terrainMaterial = new Three.MeshStandardMaterial({side: Three.FrontSide, color: 0x261a46, polygonOffset: true, polygonOffsetUnits: 1, polygonOffsetFactor: 1, metalness:0.05, roughness: 0.6});
+    private fog = new Three.Fog(new Three.Color(0x261a46),1, 60);
     
     light = new Three.AmbientLight(new Three.Color(0xffffff), 0.75);
     pointLight: Three.PointLight = new Three.PointLight(new Three.Color(0xe92908), 1, 1000, 2);
@@ -36,9 +38,11 @@ class WeatherScene{
     cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
     rainObjectPool = new ObjectPool<Rain>(256, ()=>{ return new Rain(this.gradientMaterial, this.rainDirection, this.rainSpeed) });
     snowObjectPool = new ObjectPool<Snow>(256, ()=>{ return new Snow(this.gradientMaterial, this.rainDirection, this.snowSpeed) });
+    hailObjectPool = new ObjectPool<Hail>(256, ()=>{ return new Hail(this.gradientMaterial, this.rainDirection, this.hailSpeed) });
 
-    raining: boolean = true; //Wether there is rain or not
-    freezing: boolean = true; //Wether that rain is snow or if its actually rain
+    raining: boolean = false; //Wether there is rain or not
+    freezing: boolean = false; //Wether that rain is snow or if its actually rain
+    hailing: boolean = false; //Weather that rain is hail or if its actually rain
     rainHeight = 70.0;
     rainWidth = 70.0;
     rainLength = 100.0;
@@ -46,6 +50,7 @@ class WeatherScene{
     rainDirection: Three.Vector3 = new Vector3(0, -10, 1.5);
     rainSpeed: number = 1.5;
     snowSpeed: number = 0.5;
+    hailSpeed: number = 3.0;
     snowScale: Vector3 = new Vector3(1.0, 1.0, 1.0);
 
     rainFrequency: number = 0.35;
@@ -57,7 +62,7 @@ class WeatherScene{
         const bg = new Three.TextureLoader().load("assets/vaporwaveSky.png");
         this.scene.background = bg;
 
-        this.gradientMaterial = new Three.ShaderMaterial( CreateGradientShader(new Three.Color(0xff1572), new Three.Color(0xe92908)) );
+        this.gradientMaterial = new Three.MeshBasicMaterial({color: 0xd6240d})
 
 
         //Setup Terrain
@@ -66,7 +71,7 @@ class WeatherScene{
         this.scene.add(this.terrain.mesh);
 
         //Setup Sun
-        this.sun = new Sun(100, 350, 0, 1, this.gradientMaterial, this.scene);
+        this.sun = new Sun(100, 350, 0, 1, this.gradientMaterial , this.scene);
         this.sun.enabled = false;
         this.animatables.push(this.sun);
 
@@ -77,6 +82,8 @@ class WeatherScene{
         this.scene.add(this.light);
         this.scene.add(this.pointLight);
         this.scene.add(this.otherPointLight);
+
+        this.scene.fog = this.fog;
 
         //Construct scene based on data from weatherData
         //Ex: if uv index is really high, scale the rays of the sun to be bigger and move faster
@@ -120,13 +127,16 @@ class WeatherScene{
         this.ReturnClouds();
         this.sun.ReturnSunRays();
         this.ReturnRain();
+        this.ReturnHail();
         
 
     }
 
+    //Does all the falling projectile object creation stuff, and ive even thought of an easy way of abstracting it away at  this point
+    //but I only thought id have a couple so through sunk-cost fallacy ive left it like this
     SpawnRain(){
 
-        if(!this.freezing){
+        if(!this.freezing && !this.hailing){
 
             let raindrop = this.rainObjectPool.Get( (instance: Rain)=>{ instance.Setup( this.rainDirection, this.rainSpeed);
             instance.mesh.position.set(-Math.random()*this.rainWidth, this.rainHeight, Math.random() * (this.rainLength*2) - this.rainLength) } );
@@ -148,7 +158,7 @@ class WeatherScene{
             }
 
         }
-        else
+        else if(this.freezing)
         {
 
             let snow = this.snowObjectPool.Get( (instance: Snow)=>{ 
@@ -173,19 +183,49 @@ class WeatherScene{
             }
 
         }
+        else if(this.hailing){
+
+            let hail = this.hailObjectPool.Get( (instance: Hail)=>{
+                instance.Setup(this.rainDirection, this.hailSpeed);
+                instance.mesh.position.set(-Math.random()*this.rainWidth, this.rainHeight, Math.random() * (this.rainLength*2) - this.rainLength);
+            } );
+
+            if(hail){
+                this.scene.add(hail.mesh);
+                hail.enabled = true;
+                hail.mesh.visible = true;
+
+                hail.onDestroy = this.hailOnDestroy;
+                hail.onDestroyContext = this;
+
+                if(!this.animatables.find( (value)=>{return value === hail} )){
+                    console.log("Adding new hail");
+                    this.animatables.push(hail);
+                }
+            }
+
+        }
 
     }
 
     //Construct the current scene based on the weather data passed in.
     ConstructScene(weatherCondition: WeatherCondition){
 
+        //Reset state
         this.raining = false;
         this.freezing = false;
+        this.hailing = false;
 
         this.rainSpeed = 1.5;
         this.snowSpeed = 0.5;
 
         this.snowScale.set(1.0, 1.0, 1.0);
+
+        //this.fog.near = 0.1;
+        //this.fog.far = 1000;
+
+        (this.scene.fog as Three.Fog).far = 0.1;
+        (this.scene.fog as Three.Fog).far = 1000;
 
         //Setup Sun
         let sunRays = 8;
@@ -262,19 +302,42 @@ class WeatherScene{
                 break;
             }
             case WeatherType.Hail:{
+
+                this.raining = true;
+                this.hailing = true;
+
+                this.generateCloudCover(0.85, false, 6, 18, 22, 7, 2);
+
+                if(weatherCondition.strength == WeatherStrength.Weak){
+                    this.rainFrequency = 0.25;
+                }
+                else if(weatherCondition.strength == WeatherStrength.Medium){
+                    this.rainFrequency = 0.35;
+                }
+                else if(weatherCondition.strength == WeatherStrength.Strong){
+                    this.rainFrequency = 0.55;
+                }
+
                 break;
             }
             case WeatherType.Mist:{
+
+                (this.scene.fog as Three.Fog).far = 1;
+                (this.scene.fog as Three.Fog).far = 80;
+
                 break;
             }
             case WeatherType.Fog:{
+
+                (this.scene.fog as Three.Fog).far = 0.1;
+                (this.scene.fog as Three.Fog).far = 60;
+
                 break;
             }
         }
 
         this.sun.strength = strength;
         this.sun.SetupSunrays(sunRays);
-        //enabled the proper number of sun rays here*******
 
         this.sun.enabled = true;
         this.sun.mesh.visible = true;
@@ -392,6 +455,31 @@ class WeatherScene{
         snow.enabled = false;
 
         this.snowObjectPool.ReturnInst(snow);
+
+    }
+
+    //Return all hail to object pool
+    ReturnHail(){
+
+        let instancePool = this.hailObjectPool.GetInstancePool();
+
+        for(let i = 0; i < instancePool.length; ++i){
+            this.hailObjectPool.Return(i);
+            instancePool[i].enabled = false;
+        }
+
+        this.animatables = this.animatables.filter( (value)=>{
+            return !(value instanceof Hail);
+        } )
+
+    }
+
+    hailOnDestroy(hail: Hail){
+
+        hail.mesh.visible = false;
+        hail.enabled = false;
+
+        this.hailObjectPool.ReturnInst(hail);
 
     }
 
