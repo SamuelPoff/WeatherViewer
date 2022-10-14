@@ -15,7 +15,7 @@ import { JsonPipe } from '@angular/common';
 })
 export class WeatherService {
 
-  baseUrl: string = "http://api.weatherapi.com/v1";
+  baseUrl: string = "https://api.weatherapi.com/v1";
 
   currentWeatherUrl: string = "/current.json";
   historicalWeatherUrl: string = "/history.json";
