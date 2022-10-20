@@ -34,7 +34,7 @@ class Snow implements Animatable{
 
     Animate(totalElapsedTime: number, deltaTime: number){
 
-        let offset = new Vector3(this.direction.x * this.speed, this.direction.y * this.speed, this.direction.z * this.speed);
+        let offset = new Vector3(this.direction.x * this.speed * deltaTime, this.direction.y * this.speed * deltaTime, this.direction.z * this.speed * deltaTime);
 
         let frequency = 0.0008;
         let amplitude = 0.5;

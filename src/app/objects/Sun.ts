@@ -16,8 +16,8 @@ class Sun implements Animatable{
     radius: number = 0;
     sunRays: SunRay[] = [];
 
-    private sunRotationSpeed = 0.005;
-    private sunRayRotationSpeed = 0.001;
+    static RotationSpeed = 0.0005;
+    static SunRayRotationSpeed = 0.0001;
     private scene;
 
     private material : Three.Material;
@@ -49,9 +49,9 @@ class Sun implements Animatable{
 
     Animate(totalElapsedTime: number, deltaTime: number){
 
-        this.mesh.rotation.y += this.sunRotationSpeed;
+        this.mesh.rotation.y += Sun.RotationSpeed * deltaTime;
         let frequency = 0.003;
-        let amplitude = 0.1;
+        let amplitude = 0.2;
 
         for(let i = 0; i < this.sunRays.length; i++){
 
@@ -63,7 +63,7 @@ class Sun implements Animatable{
             }
             sunRay.mesh.scale.y = 1 + scaleOffset;
 
-            sunRay.SetAngle(sunRay.angle + this.sunRayRotationSpeed);
+            sunRay.SetAngle(sunRay.angle + Sun.SunRayRotationSpeed * deltaTime);
 
         }
 

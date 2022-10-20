@@ -13,9 +13,6 @@ import { Address } from 'ngx-google-places-autocomplete/objects/address';
 
 import * as Three from "three";
 import { combineLatestWith, Observable, timestamp, zip, zipAll, zipWith } from 'rxjs';
-import { MathUtils, Vector2 } from 'three';
-
-import WeatherData from "../objects/WeatherData";
 
 import WeatherScene from "../objects/WeatherScene";
 
@@ -80,13 +77,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private testOrthoCamera!: Three.OrthographicCamera;
   private enableOrtho: boolean = false;
 
-  private plane!: Three.Mesh;
   private staticTexture!: Three.Texture;
 
   private transitionTimerActive: boolean = false;
   private transitionTime: number = 0.3;
   private transitionCounter: number = 0.0;
 
+  private fps = 60;
+  private renderInterval = 1000/this.fps;
+  //Note that since I have coupled rendering and update logic since the loop was already set up, that all
+  //update logic will also be throttled by throttling the framerate. Should be fine for this application
+  //but I see why larger operations set up a separate update and render loop
+
+  private renderCounter = 0;
 
   constructor(private http: HttpClient, private weatherService: WeatherService, private placesService: PlacesAutocompleteService) { 
 
@@ -170,8 +173,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     let component: DashboardComponent = this;
     (function render(currentTime?: DOMHighResTimeStamp){
-      
-      component.renderer.clear();
 
       //Calculate time information
       if(currentTime){
@@ -186,6 +187,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         component.lastTime = currentTime;
 
       }
+
+      component.renderCounter += component.deltaTime;
+
+      //Check for time since last render
+      if(component.renderCounter >= component.renderInterval) {
+      
+      component.renderer.clear();
 
       //Animation Loop ----
       component.weatherScene.Animate(component.totalElapsedTime, component.deltaTime);
@@ -204,6 +212,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }else{
 
         component.effectComposer?.render();
+
+      }
+
+      component.renderCounter = 0;
 
       }
 

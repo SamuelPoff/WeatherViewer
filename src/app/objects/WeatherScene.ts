@@ -11,8 +11,7 @@ import Hail from './Hail';
 
 import Animatable from "../interfaces/Animatable";
 
-import {CreateGradientShader} from "./Shaders";
-import {GetWeatherCondition, WeatherCondition, WeatherType, WeatherStrength} from "../utils/WeatherConditionUtil";
+import {WeatherCondition, WeatherType, WeatherStrength} from "../utils/WeatherConditionUtil";
 
 import ObjectPool from "./ObjectPool";
 import { Vector3 } from "three";
@@ -35,7 +34,7 @@ class WeatherScene{
     sun!: Sun;
     terrain!: Terrain;
 
-    cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.gradientMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
+    cloudObjectPool = new ObjectPool<Cloud>(256, ()=>{return new Cloud(5, 1, this.terrainMaterial, this.scene, false, new Vector3(0, 0, 0), Math.random())});
     rainObjectPool = new ObjectPool<Rain>(256, ()=>{ return new Rain(this.gradientMaterial, this.rainDirection, this.rainSpeed) });
     snowObjectPool = new ObjectPool<Snow>(256, ()=>{ return new Snow(this.gradientMaterial, this.rainDirection, this.snowSpeed) });
     hailObjectPool = new ObjectPool<Hail>(256, ()=>{ return new Hail(this.gradientMaterial, this.rainDirection, this.hailSpeed) });
@@ -48,10 +47,16 @@ class WeatherScene{
     rainLength = 100.0;
 
     rainDirection: Three.Vector3 = new Vector3(0, -10, 1.5);
-    rainSpeed: number = 1.5;
-    snowSpeed: number = 0.5;
-    hailSpeed: number = 3.0;
+
+    baseRainSpeed: number = 0.3;
+    baseSnowSpeed: number = 0.1;
+    baseHailSpeed: number = 0.4;
+
+    rainSpeed: number = this.baseRainSpeed;
+    snowSpeed: number = this.baseSnowSpeed;
+    hailSpeed: number = this.baseHailSpeed;
     snowScale: Vector3 = new Vector3(1.0, 1.0, 1.0);
+    
 
     rainFrequency: number = 0.35;
 
@@ -216,13 +221,11 @@ class WeatherScene{
         this.freezing = false;
         this.hailing = false;
 
-        this.rainSpeed = 1.5;
-        this.snowSpeed = 0.5;
+        this.rainSpeed = this.baseRainSpeed;
+        this.snowSpeed = this.baseSnowSpeed;
+        this.hailSpeed = this.baseHailSpeed;
 
         this.snowScale.set(1.0, 1.0, 1.0);
-
-        //this.fog.near = 0.1;
-        //this.fog.far = 1000;
 
         (this.scene.fog as Three.Fog).far = 0.1;
         (this.scene.fog as Three.Fog).far = 1000;
@@ -269,7 +272,7 @@ class WeatherScene{
                 }
                 else if(weatherCondition.strength == WeatherStrength.Strong){
                     this.rainFrequency = 0.50;
-                    this.rainSpeed = 1.7;
+                    this.rainSpeed *= 1.3;
                 }
 
                 break;
@@ -295,7 +298,7 @@ class WeatherScene{
                 }
                 else if(weatherCondition.strength == WeatherStrength.VeryStrong){
                     this.rainFrequency = 0.70;
-                    this.snowSpeed = 1.4;
+                    this.snowSpeed *= 1.4;
                     this.snowScale.set(2.0, 2.0, 2.0);
                 }
 
