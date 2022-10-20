@@ -56,7 +56,6 @@ export class WeatherService {
     let feelslike = units === 'f' ? currentWeatherRes.feelslike_c : currentWeatherRes.feelslike_f;
 
     let weatherData: CurrentWeatherData = JSON.parse(JSON.stringify(currentWeatherRes));
-    console.log("Weather Data: " + weatherData);
 
     return {
       last_updated: currentWeatherRes.last_updated,

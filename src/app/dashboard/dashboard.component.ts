@@ -281,11 +281,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.weatherHistoryData = new Array<any>;
     this.weatherForecastData = new Array<any>;
 
-    let dateTime = "2022-10-11"
+    let yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let dateTime = yesterday.toISOString().slice(0, 10);
 
     const currentWeather$ = this.weatherService.getCurrentWeather(location);
     const weatherHistory$ = this.weatherService.getHistoricalWeather(location, dateTime);
-    const weatherForecast$ = this.weatherService.getForecast(location, 7);
+    const weatherForecast$ = this.weatherService.getForecast(location, 8);
 
     currentWeather$.pipe(
       combineLatestWith(weatherHistory$, weatherForecast$)
@@ -296,7 +299,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
       this.CacheWeatherData(location, current, history, forecast);
 
-    }, (error)=>{console.log(console.log(`Error while pulling weather data: ${error}`))} );
+    }, (error)=>{console.log(`Error while pulling weather data: `); console.log(error)} );
 
   }
 

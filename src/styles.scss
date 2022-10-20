@@ -97,6 +97,7 @@ body{
 
 }
 
+
 $bg-color: rgba(0,0,0,0.35);
 $wireframe-color: rgba(255,255,255,0.5);
 
@@ -109,15 +110,46 @@ $wireframe-color-hover: rgba(255, 255, 255, 1);
     grid-template-columns: 33% 33% 33%;
     grid-gap: 0;
 
+    justify-content: center;
+
+}
+
+@media only screen and (max-width: 820px){
+    .weather-grid{
+        display: grid;
+        grid-template-columns: 100%;
+        grid-gap: 0;
+
+        justify-content: center;
+    }
+
 }
 
 .weather-details{
 
-    min-width: 200px;
+    min-width: 180px;
 
     display: flex;
     flex-direction: column;
 
+}
+
+@media only screen and (max-width: 420px){
+
+    .weather-grid{
+        display: grid;
+        grid-template-columns: 75%;
+        grid-gap: 0;
+
+        justify-content: center;
+    }
+
+    .weather-details{
+        min-width: 100px;
+
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .weather-container{
