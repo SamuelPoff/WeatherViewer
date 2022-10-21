@@ -37,8 +37,9 @@ class Hail implements Animatable{
         //Just fly toward direction for now. The cloud that spawns this will take care of culling.
         //Later maybe add more effects or have it do something when it hits the "ground"
 
-        let offset = new Vector3(this.direction.x * this.speed, this.direction.y * this.speed, this.direction.z * this.speed);
-        this.mesh.position.add( offset );
+        this.mesh.position.x += this.direction.x * this.speed * deltaTime;
+        this.mesh.position.y += this.direction.y * this.speed * deltaTime;
+        this.mesh.position.z += this.direction.z * this.speed * deltaTime;
 
         this.mesh.rotateX(0.25);
         this.mesh.rotateY(0.25);

@@ -34,17 +34,17 @@ class Snow implements Animatable{
 
     Animate(totalElapsedTime: number, deltaTime: number){
 
-        let offset = new Vector3(this.direction.x * this.speed * deltaTime, this.direction.y * this.speed * deltaTime, this.direction.z * this.speed * deltaTime);
-
         let frequency = 0.0008;
         let amplitude = 0.5;
-        offset.x += Math.sin(totalElapsedTime * frequency + this.animationOffset) * amplitude * this.animationDirection;
+        let xOffset = Math.sin(totalElapsedTime * frequency + this.animationOffset) * amplitude * this.animationDirection;
         
         frequency = 0.0006;
         amplitude = 0.5;
-        offset.z += Math.sin(totalElapsedTime * frequency + this.animationOffset) * amplitude * this.animationDirection;
+        let zOffset = Math.sin(totalElapsedTime * frequency + this.animationOffset) * amplitude * this.animationDirection;
 
-        this.mesh.position.add( offset );
+        this.mesh.position.x += (this.direction.x * this.speed * deltaTime) + xOffset;
+        this.mesh.position.y += this.direction.y * this.speed * deltaTime;
+        this.mesh.position.z += (this.direction.z * this.speed * deltaTime) + zOffset;
 
         if(this.mesh.position.y <= -5){
 

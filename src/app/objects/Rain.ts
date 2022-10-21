@@ -21,8 +21,6 @@ class Rain implements Animatable{
     direction: Three.Vector3;
     speed: number;
 
-    lifetime: number = 0;
-
     public onDestroy?: (rain: Rain)=>void
     public onDestroyContext?: any;
 
@@ -50,11 +48,11 @@ class Rain implements Animatable{
         //Just fly toward direction for now. The cloud that spawns this will take care of culling.
         //Later maybe add more effects or have it do something when it hits the "ground"
 
-        let offset = new Vector3(this.direction.x * this.speed * deltaTime, this.direction.y * this.speed * deltaTime, this.direction.z * this.speed * deltaTime);
-        this.mesh.position.add( offset );
+        this.mesh.position.x += this.direction.x * this.speed * deltaTime;
+        this.mesh.position.y += this.direction.y * this.speed * deltaTime;
+        this.mesh.position.z += this.direction.z * this.speed * deltaTime;
 
-        this.lifetime += deltaTime;
-        if(this.lifetime >= 2000) {
+        if(this.mesh.position.y <= -5) {
             if(this.onDestroy){
                 if(this.onDestroyContext){
                     this.onDestroy.apply(this.onDestroyContext, [this]);
@@ -79,8 +77,6 @@ class Rain implements Animatable{
         //Randomize scale
         let randomScale = Rain.baseScale + (((Math.random() * 2) - 1) * 0.5);
         this.mesh.scale.set(randomScale, randomScale, randomScale);
-
-        this.lifetime = 0;
 
     }
 
